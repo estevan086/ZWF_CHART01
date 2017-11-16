@@ -1,0 +1,12 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<SelectDialog id="lstStatus" title="{i18n>labelStatus}" class="sapUiPopupWithPadding" items="{ path : '/lstItemStatus' }"
+		liveChange="fnBuscarActivoFijo" confirm="fnSeleccionarStatus" cancel="fnCloseFragment">
+		<!--<StandardListItem title="{Txt50}" description="{Bukrs}"/>-->
+		<ObjectListItem title="{Desstat}" number="{Statustk}">
+			<!--<attributes>-->
+			<!--	<ObjectAttribute text="{Desstat}"/>-->
+				
+			<!--</attributes>-->
+		</ObjectListItem>
+	</SelectDialog>
+</core:FragmentDefinition>
