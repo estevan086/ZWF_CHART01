@@ -36,7 +36,7 @@ sap.ui.define([
 			// 		text: "Tickets Por Sociedad"
 			// 	}
 			// });
-			
+
 			var oVizFrameDonut = this.byId('DueDateGridFrameDonut');
 			var oVizPopoverDonut = this.byId('vizPopoverDonut');
 			//console.log(oVizPopover)
@@ -46,7 +46,7 @@ sap.ui.define([
 				title: {
 					text: "Tickets Por Sociedad"
 				}
-			});			
+			});
 
 		},
 
@@ -73,15 +73,21 @@ sap.ui.define([
 				vDia2 = vFecha2[1].length === 1 ? "0" + vFecha2[1] : vFecha2[1],
 				vMes2 = vFecha2[0].length === 1 ? "0" + vFecha2[0] : vFecha2[0],
 				vFechaValue2 = vAno2 + "-" + vMes2 + "-" + vDia2 + "T00:00:00",
-				vCheck = this.getView().byId("_checkGestion").getSelected() ? "X" : "";
+				vCheck = this.getView().byId("_checkGestion").getSelected() ? "X" : "",
+				oRead = "";
 			// vFechaValue = "2017" + "-" + "10" + "-" + "02" + "T00:00:00";
 
-			//Leer datos del ERP
-			// var oRead = this.fnReadEntity(oModelService, "/SocGraficoSet?$filter=Datum eq '" + vFechaValue + "' and Estat eq '" + vStatus + "'", null, false);
-			// var oRead = this.fnReadEntity(oModelService, "/SocGraficoSet?$filter=Datum eq datetime'" + vFechaValue + "'", null, false);
-			var oRead = this.fnReadEntity(oModelService, "/SocGraficoSet?$filter=Datum eq datetime'" + vFechaValue +
-				"' and Datum2 eq datetime'" +
-				vFechaValue2 + "' and Estat eq '" + vStatus.getName() + "' and Gestion eq '" + vCheck + "'", null, false);
+			if (vStatus.getName() !== "") {
+
+				//Leer datos del ERP
+				oRead = this.fnReadEntity(oModelService, "/SocGraficoSet?$filter=Datum eq datetime'" + vFechaValue +
+					"' and Datum2 eq datetime'" +
+					vFechaValue2 + "' and Estat eq '" + vStatus.getName() + "' and Gestion eq '" + vCheck + "'", null, false);
+			} else {
+				oRead = this.fnReadEntity(oModelService, "/SocGraficoSet?$filter=Datum eq datetime'" + vFechaValue +
+					"' and Datum2 eq datetime'" +
+					vFechaValue2 + "' and Gestion eq '" + vCheck + "'", null, false);
+			}
 
 			if (oRead.tipo === "S") {
 				var oData = {
@@ -121,7 +127,7 @@ sap.ui.define([
 			// 		text: "Tickets Por Sociedad"
 			// 	}
 			// });
-			
+
 			var oVizFrameDonut = this.byId('DueDateGridFrameDonut');
 			var oVizPopoverDonut = this.byId('vizPopoverDonut');
 			//console.log(oVizPopover)
@@ -131,7 +137,7 @@ sap.ui.define([
 				title: {
 					text: "Tickets Por Sociedad"
 				}
-			});			
+			});
 
 			var vPanel = this.byId('panel1');
 
@@ -264,9 +270,9 @@ sap.ui.define([
 
 		fnStatus: function() {
 			this.fnOpenDialog("com.report.view.fragment.ListStatus");
-			this.fnObtenerDatosListaStatus();			
+			this.fnObtenerDatosListaStatus();
 		},
-		
+
 		/**
 		 * Abrir Fragment.
 		 * @public
@@ -281,7 +287,7 @@ sap.ui.define([
 			this.fnLoadDialog(sRutaFragment, this.oFragment);
 			this.oFragment.view.open();
 		},
-		
+
 		/**
 		 * Instanciar Fragment.
 		 * @public
@@ -297,7 +303,7 @@ sap.ui.define([
 			objFragment.view = sap.ui.xmlfragment(sRutaFragment, this);
 			this.getView().addDependent(objFragment.view);
 		},
-		
+
 		/**
 		 * Obtener promesa de lista de activo fijo
 		 * @public
@@ -331,7 +337,7 @@ sap.ui.define([
 				this.fnObtenerListStatusSyn(vInveNum.getValue());
 			}
 		},
-		
+
 		/**
 		 * Obtener lista de status
 		 * @public
@@ -364,7 +370,7 @@ sap.ui.define([
 				MessageBox.error("No existen datos de status", null, "Mensaje del sistema", "OK", null);
 			}
 		},
-		
+
 		/**
 		 * Seleccionar status
 		 * @public
@@ -380,7 +386,7 @@ sap.ui.define([
 			//Cerrar Fragment
 			this.fnCloseFragment();
 		},
-		
+
 		/**
 		 * Cerrar el fragment
 		 * @public
@@ -389,7 +395,7 @@ sap.ui.define([
 			this.fnCloseDialog(this.oFragment);
 			delete this.oFragment;
 		},
-		
+
 		/**
 		 * Cerrar Fragment.
 		 * @public
@@ -398,8 +404,23 @@ sap.ui.define([
 		fnCloseDialog: function(objFragment) {
 			//objFragment.view.close();
 			objFragment.view.destroy();
-		}		
-		
+		},
+
+		/**
+		 * Limpiar campos filtros.
+		 * @public
+		 */
+		fnLimpiar: function() {
+			var vStatus = this.getView().byId("__input2"),
+				vFecha = this.getView().byId("__datePicker"),
+				vFecha2 = this.getView().byId("__datePicker2"),
+				vCheck = this.getView().byId("_checkGestion");
+				
+				vStatus.setValue(null);
+				vFecha.setValue(null);
+				vFecha2.setValue(null);
+				vCheck.setSelected(null);
+		}
 
 	});
 });

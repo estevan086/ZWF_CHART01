@@ -16,7 +16,10 @@
 								<Label text="Estado" id="__label1"/>
 								<Input width="100%" id="__input2" showValueHelp="true" valueHelpRequest="fnStatus" valueHelpOnly="true"/>
 								<CheckBox text="Gestion" id="_checkGestion"/>
-								<Button width="30%" text="Consultar" id="__button0" type="Accept" press="fnConsultar"/>
+								<layout:HorizontalLayout>
+									<Button text="Consultar" id="__button0" type="Accept" press="fnConsultar"/>
+									<Button text="Limpiar"   id="__button1" type="Emphasized" press="fnLimpiar"/>
+								</layout:HorizontalLayout>
 							</layout:VerticalLayout>
 						</sap.ui.layout.form:content>
 					</sap.ui.layout.form:SimpleForm>
@@ -77,7 +80,7 @@
 								</Toolbar>
 							</headerToolbar>
 							<columns>
-								<Column minScreenWidth="Tablet" hAlign="Center" >
+								<Column minScreenWidth="Tablet" hAlign="Center">
 									<Text text="Sociedad"/>
 								</Column>
 								<Column minScreenWidth="Tablet" hAlign="Center">
@@ -94,10 +97,10 @@
 								</Column>
 								<Column minScreenWidth="Tablet" hAlign="Center">
 									<Text text="Contabilidad"/>
-								</Column>		
+								</Column>
 								<Column minScreenWidth="Tablet" hAlign="Center">
 									<Text text="Total"/>
-								</Column>								
+								</Column>
 							</columns>
 							<items>
 								<ColumnListItem>
