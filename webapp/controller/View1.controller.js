@@ -139,9 +139,11 @@ sap.ui.define([
 				}
 			});
 
-			var vPanel = this.byId('panel1');
+			var vPanel = this.byId('panel1'),
+				vPane2 = this.byId('panel2');
 
 			vPanel.setVisible(true);
+			vPane2.setVisible(true);
 
 			// var datapath = {
 

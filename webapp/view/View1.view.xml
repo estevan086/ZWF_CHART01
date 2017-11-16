@@ -18,12 +18,12 @@
 								<CheckBox text="Gestion" id="_checkGestion"/>
 								<layout:HorizontalLayout>
 									<Button text="Consultar" id="__button0" type="Accept" press="fnConsultar"/>
-									<Button text="Limpiar"   id="__button1" type="Emphasized" press="fnLimpiar"/>
+									<Button text="Limpiar" id="__button1" type="Emphasized" press="fnLimpiar"/>
 								</layout:HorizontalLayout>
 							</layout:VerticalLayout>
 						</sap.ui.layout.form:content>
 					</sap.ui.layout.form:SimpleForm>
-					<Panel expandable="true" expanded="true" id="panel1" width="auto" headerText="" class="sapUiResponsiveMargin" visible="false">
+					<Panel expandable="true" expanded="true" id="panel1" width="auto" headerText="Tabla" class="sapUiResponsiveMargin" visible="false">
 						<!--<table:Table id="Table1" rows="{/sociedad}">-->
 						<!--	<table:title>-->
 						<!--		<Text text="Datos"></Text>-->
@@ -116,24 +116,26 @@
 								</ColumnListItem>
 							</items>
 						</Table>
-						<!--<viz:VizFrame id="DueDateGridFrame" vizType="info/pie" uiConfig="{applicationSet:'fiori'}"-->
-						<!--	vizProperties="{plotArea:{dataLabel:{visible: true}}}">-->
-						<!--	<viz:dataset>-->
-						<!--		<viz.data:FlattenedDataset data="{/sociedad}">-->
-						<!--			<viz.data:dimensions>-->
-						<!--				<viz.data:DimensionDefinition name="Sociedad" value="{Sociedad}" displayValue="{Sociedad}"/>-->
-						<!--			</viz.data:dimensions>-->
-						<!--			<viz.data:measures>-->
-						<!--				<viz.data:MeasureDefinition value="{Total}" name="Total"/>-->
-						<!--			</viz.data:measures>-->
-						<!--		</viz.data:FlattenedDataset>-->
-						<!--	</viz:dataset>-->
-						<!--	<viz:feeds>-->
-						<!--		<viz.feeds:FeedItem uid="size" type="Measure" values="Total"/>-->
-						<!--		<viz.feeds:FeedItem uid="color" type="Dimension" values="Sociedad"/>-->
-						<!--	</viz:feeds>-->
-						<!--</viz:VizFrame>-->
-						<!--<viz:Popover id="vizPopover"></viz:Popover>	-->
+					</Panel>
+					<!--<viz:VizFrame id="DueDateGridFrame" vizType="info/pie" uiConfig="{applicationSet:'fiori'}"-->
+					<!--	vizProperties="{plotArea:{dataLabel:{visible: true}}}">-->
+					<!--	<viz:dataset>-->
+					<!--		<viz.data:FlattenedDataset data="{/sociedad}">-->
+					<!--			<viz.data:dimensions>-->
+					<!--				<viz.data:DimensionDefinition name="Sociedad" value="{Sociedad}" displayValue="{Sociedad}"/>-->
+					<!--			</viz.data:dimensions>-->
+					<!--			<viz.data:measures>-->
+					<!--				<viz.data:MeasureDefinition value="{Total}" name="Total"/>-->
+					<!--			</viz.data:measures>-->
+					<!--		</viz.data:FlattenedDataset>-->
+					<!--	</viz:dataset>-->
+					<!--	<viz:feeds>-->
+					<!--		<viz.feeds:FeedItem uid="size" type="Measure" values="Total"/>-->
+					<!--		<viz.feeds:FeedItem uid="color" type="Dimension" values="Sociedad"/>-->
+					<!--	</viz:feeds>-->
+					<!--</viz:VizFrame>-->
+					<!--<viz:Popover id="vizPopover"></viz:Popover>	-->
+					<Panel expandable="true" expanded="true" id="panel2" width="auto" headerText="Gráfico" class="sapUiResponsiveMargin" visible="false">
 						<viz:VizFrame id="DueDateGridFrameDonut" vizType="info/donut" uiConfig="{applicationSet:'fiori'}"
 							vizProperties="{plotArea:{dataLabel:{visible: true}}}">
 							<viz:dataset>
