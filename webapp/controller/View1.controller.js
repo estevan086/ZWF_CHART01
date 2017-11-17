@@ -130,12 +130,21 @@ sap.ui.define([
 
 			var oVizFrameDonut = this.byId('DueDateGridFrameDonut');
 			var oVizPopoverDonut = this.byId('vizPopoverDonut');
+			var vTitle = "";
+			
+			if(this.getView().byId("_checkGestion").getSelected()){
+				vTitle = oRead.datos.results[0].Titulo + " " + oRead.datos.results[0].Gestiones;
+			}else{
+				vTitle = oRead.datos.results[0].Titulo + " " + oRead.datos.results[0].Tickets;
+			}
+			
+			
 			//console.log(oVizPopover)
 			oVizPopoverDonut.connect(oVizFrameDonut.getVizUid());
 
 			oVizFrameDonut.setVizProperties({
 				title: {
-					text: "Tickets Por Sociedad"
+					text: vTitle
 				}
 			});
 
@@ -145,46 +154,16 @@ sap.ui.define([
 			vPanel.setVisible(true);
 			vPane2.setVisible(true);
 
-			// var datapath = {
-
-			// 	"items": [{
-			// 			"sociedad": "GDO",
-			// 			"cxp": "100",
-			// 			"tesoreria": "400",
-			// 			"compra": "100",
-			// 			"nomina": "200",
-			// 			"contabilidad": "1",
-			// 			"total": "100"
-			// 		},
-
-			// 		{
-			// 			"sociedad": "Surtigas",
-			// 			"cxp": "200",
-			// 			"tesoreria": "500",
-			// 			"compra": "200",
-			// 			"nomina": "300",
-			// 			"contabilidad": "2",
-			// 			"total": "200"
-			// 		},
-
-			// 		{
-			// 			"sociedad": "GDP",
-			// 			"cxp": "300",
-			// 			"tesoreria": "600",
-			// 			"compra": "300",
-			// 			"nomina": "400",
-			// 			"contabilidad": "3",
-			// 			"total": "300"
-			// 		}
-			// 	]
-			// };
-
-			var table1 = this.byId("Table1");
+			var table1 = this.byId("Table1"),
+				vTitleTable = this.getView().byId("_titleTable");
+			
+			
 
 			// var oModelTable = new sap.ui.model.json.JSONModel();
 
 			// table1.setModel(oModelTable);
 			table1.setModel(oModel);
+			vTitleTable.setText(vTitle);
 
 			// oModelTable.setData(datapath);
 

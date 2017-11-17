@@ -76,7 +76,7 @@
 						<Table id="Table1" inset="false" items="{ path: '/sociedad' }">
 							<headerToolbar>
 								<Toolbar>
-									<Title text="Datos" level="H2"/>
+									<Title id="_titleTable" text="Datos" level="H2"/>
 								</Toolbar>
 							</headerToolbar>
 							<columns>
