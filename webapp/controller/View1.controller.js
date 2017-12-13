@@ -4,14 +4,16 @@ var vPromise = {};
 
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
-	"sap/m/MessageBox"
-], function(Controller, MessageBox) {
+	"sap/m/MessageBox",
+	'sap/ui/core/util/Export',
+	'sap/ui/core/util/ExportTypeCSV',
+	'jquery.sap.global'
+], function(Controller, MessageBox, Export, ExportTypeCSV, jQuery) {
 	"use strict";
 
 	return Controller.extend("com.report.controller.View1", {
 
 		onInit: function() {
-			debugger;
 			//Lanzar promesa para obtener status
 			this.fnObtenerStatus();
 
@@ -59,23 +61,31 @@ sap.ui.define([
 
 			}
 
+			// this.getView().byId("__datePicker").setLocale("en-US");
+			// this.getView().byId("__datePicker2").setLocale("en-US");
+			// vFecha = this.getView().byId("__datePicker").getValue().split("/"),
+			// vFecha2 = this.getView().byId("__datePicker2").getValue().split("/"),	
+			// vAno = 20 + vFecha[2],
+			// vDia = vFecha[1].length === 1 ? "0" + vFecha[1] : vFecha[1],
+			// vMes = vFecha[0].length === 1 ? "0" + vFecha[0] : vFecha[0],
+			// vFechaValue = vAno + "-" + vMes + "-" + vDia + "T00:00:00",
+			// vAno2 = 20 + vFecha2[2],
+			// vDia2 = vFecha2[1].length === 1 ? "0" + vFecha2[1] : vFecha2[1],
+			// vMes2 = vFecha2[0].length === 1 ? "0" + vFecha2[0] : vFecha2[0],
+			// vFechaValue2 = vAno2 + "-" + vMes2 + "-" + vDia2 + "T00:00:00",			
+
 			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
 				//Definir modelo del servicio web
 				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true),
 				vStatus = this.getView().byId("__input2"),
-				vFecha = this.getView().byId("__datePicker").getValue().split("/"),
-				vFecha2 = this.getView().byId("__datePicker2").getValue().split("/"),
-				vAno = 20 + vFecha[2],
-				vDia = vFecha[1].length === 1 ? "0" + vFecha[1] : vFecha[1],
-				vMes = vFecha[0].length === 1 ? "0" + vFecha[0] : vFecha[0],
-				vFechaValue = vAno + "-" + vMes + "-" + vDia + "T00:00:00",
-				vAno2 = 20 + vFecha2[2],
-				vDia2 = vFecha2[1].length === 1 ? "0" + vFecha2[1] : vFecha2[1],
-				vMes2 = vFecha2[0].length === 1 ? "0" + vFecha2[0] : vFecha2[0],
-				vFechaValue2 = vAno2 + "-" + vMes2 + "-" + vDia2 + "T00:00:00",
+				vFecha = this.getView().byId("__datePicker").getValue(),
+				vFecha2 = this.getView().byId("__datePicker2").getValue(),
+				vFechaValue = vFecha + "T00:00:00",
+				vFechaValue2 = vFecha2 + "T00:00:00",
 				vCheck = this.getView().byId("_checkGestion").getSelected() ? "X" : "",
 				oRead = "";
 			// vFechaValue = "2017" + "-" + "10" + "-" + "02" + "T00:00:00";
+			// "2017-10-01"
 
 			if (vStatus.getName() !== "") {
 
@@ -98,47 +108,22 @@ sap.ui.define([
 				MessageBox.error(oRead.msjs, null, "Mensaje del sistema", "OK", null);
 			}
 
-			// var oData = {
-			// 	"sociedad": [{
-			// 		"Socied": "Sociedad_1",
-			// 		"Tickets": 1,
-			// 		"DISPLAY_NAME": "Sociedad 1"
-			// 	}, {
-			// 		"Socied": "Sociedad_2",
-			// 		"Tickets": 2,
-			// 		"DISPLAY_NAME": "Sociedad 2"
-			// 	}, {
-			// 		"Socied": "Sociedad_N",
-			// 		"Tickets": 10,
-			// 		"DISPLAY_NAME": "Sociedad N"
-			// 	}]
-			// };
+			var vRowTotal = oData.sociedad[oData.sociedad.length - 1];
+			oData.sociedad = oData.sociedad.slice(0, oData.sociedad.length - 1);
 
 			var oModel = new sap.ui.model.json.JSONModel(oData);
 			this.getView().setModel(oModel);
 
-			// var oVizFrame = this.byId('DueDateGridFrame');
-			// var oVizPopover = this.byId('vizPopover');
-			// //console.log(oVizPopover)
-			// oVizPopover.connect(oVizFrame.getVizUid());
-
-			// oVizFrame.setVizProperties({
-			// 	title: {
-			// 		text: "Tickets Por Sociedad"
-			// 	}
-			// });
-
 			var oVizFrameDonut = this.byId('DueDateGridFrameDonut');
 			var oVizPopoverDonut = this.byId('vizPopoverDonut');
 			var vTitle = "";
-			
-			if(this.getView().byId("_checkGestion").getSelected()){
+
+			if (this.getView().byId("_checkGestion").getSelected()) {
 				vTitle = oRead.datos.results[0].Titulo + " " + oRead.datos.results[0].Gestiones;
-			}else{
+			} else {
 				vTitle = oRead.datos.results[0].Titulo + " " + oRead.datos.results[0].Tickets;
 			}
-			
-			
+
 			//console.log(oVizPopover)
 			oVizPopoverDonut.connect(oVizFrameDonut.getVizUid());
 
@@ -156,17 +141,11 @@ sap.ui.define([
 
 			var table1 = this.byId("Table1"),
 				vTitleTable = this.getView().byId("_titleTable");
-			
-			
 
-			// var oModelTable = new sap.ui.model.json.JSONModel();
-
-			// table1.setModel(oModelTable);
 			table1.setModel(oModel);
 			vTitleTable.setText(vTitle);
 
-			// oModelTable.setData(datapath);
-
+			this.fnSetGraficoTotal(vRowTotal);
 		},
 
 		//Funciones Nuevas	
@@ -396,11 +375,165 @@ sap.ui.define([
 				vFecha = this.getView().byId("__datePicker"),
 				vFecha2 = this.getView().byId("__datePicker2"),
 				vCheck = this.getView().byId("_checkGestion");
-				
-				vStatus.setValue(null);
-				vFecha.setValue(null);
-				vFecha2.setValue(null);
-				vCheck.setSelected(null);
+
+			vStatus.setValue(null);
+			vFecha.setValue(null);
+			vFecha2.setValue(null);
+			vCheck.setSelected(null);
+		},
+
+		onDataExport: sap.m.Table.prototype.exportData || function(oEvent) {
+
+			var oExport = new Export({
+
+				// Type that will be used to generate the content. Own ExportType's can be created to support other formats
+				exportType: new ExportTypeCSV({
+					separatorChar: ";"
+				}),
+
+				// Pass in the model created above
+				models: this.getView().getModel(),
+
+				// binding information for the rows aggregation
+				rows: {
+					path: "/ProductCollection"
+				},
+
+				// column definitions with column name and binding info for the content
+
+				columns: [{
+					name: "Product",
+					template: {
+						content: "{Name}"
+					}
+				}, {
+					name: "Product ID",
+					template: {
+						content: "{ProductId}"
+					}
+				}, {
+					name: "Supplier",
+					template: {
+						content: "{SupplierName}"
+					}
+				}, {
+					name: "Dimensions",
+					template: {
+						content: {
+							parts: ["Width", "Depth", "Height", "DimUnit"],
+							formatter: function(width, depth, height, dimUnit) {
+								return width + " x " + depth + " x " + height + " " + dimUnit;
+							},
+							state: "Warning"
+						}
+						// "{Width} x {Depth} x {Height} {DimUnit}"
+					}
+				}, {
+					name: "Weight",
+					template: {
+						content: "{WeightMeasure} {WeightUnit}"
+					}
+				}, {
+					name: "Price",
+					template: {
+						content: "{Price} {CurrencyCode}"
+					}
+				}]
+			});
+
+			// download exported file
+			oExport.saveFile().catch(function(oError) {
+				MessageBox.error("Error when downloading data. Browser might not be supported!\n\n" + oError);
+			}).then(function() {
+				oExport.destroy();
+			});
+		},
+
+		fnObtenerArrayTotalTorre: function(pFilaArray) {
+			var vTotalList = [];
+			// vItemTotal = {Torre: "", Total: ""};
+
+			for (var property in pFilaArray) {
+				var vItemTotal = {};
+
+				switch (property) {
+					case "Compras":
+						vItemTotal.Torre = property;
+						vItemTotal.Total = pFilaArray[property];
+
+						vTotalList.push(vItemTotal);
+
+						break;
+
+					case "Contabilidad":
+						vItemTotal.Torre = property;
+						vItemTotal.Total = pFilaArray[property];
+
+						vTotalList.push(vItemTotal);
+
+						break;
+
+					case "Cxp":
+						vItemTotal.Torre = property;
+						vItemTotal.Total = pFilaArray[property];
+
+						vTotalList.push(vItemTotal);
+
+						break;
+
+					case "Nomina":
+						vItemTotal.Torre = property;
+						vItemTotal.Total = pFilaArray[property];
+
+						vTotalList.push(vItemTotal);
+
+						break;
+
+					case "Tesoreria":
+						vItemTotal.Torre = property;
+						vItemTotal.Total = pFilaArray[property];
+
+						vTotalList.push(vItemTotal);
+
+						break;
+					default:
+				}
+			}
+
+			return vTotalList;
+
+		},
+
+		fnSetGraficoTotal: function(pTotal) {
+			var oVizFrameDonutTotal = this.byId('DueDateGridFrameDonutTotal'),
+				oVizPopoverDonutTotal = this.byId('vizPopoverDonutTotal'),
+				vTitleTotal = "Total Tickets Por Torre",
+				// vListTotal = [],
+				oData = {},
+				oDataTable = {
+					total: []
+				},
+				oModel = "",
+				vTable2 = this.byId("Table2"),
+				oModelTable = "";
+
+			oDataTable.total.push(pTotal);
+			oModelTable = new sap.ui.model.json.JSONModel(oDataTable);
+			vTable2.setModel(oModelTable);
+
+			oData.totalGrafico = this.fnObtenerArrayTotalTorre(pTotal);
+
+			oModel = new sap.ui.model.json.JSONModel(oData);
+			// this.getView().setModel(oModel);
+
+			oVizFrameDonutTotal.setModel(oModel);
+
+			oVizPopoverDonutTotal.connect(oVizFrameDonutTotal.getVizUid());
+			oVizFrameDonutTotal.setVizProperties({
+				title: {
+					text: vTitleTotal
+				}
+			});
 		}
 
 	});

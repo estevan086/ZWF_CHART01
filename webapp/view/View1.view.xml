@@ -11,8 +11,8 @@
 							<sap.ui.core:Title text="" id="__title0"/>
 							<layout:VerticalLayout>
 								<Label text="Fecha" id="__label0"/>
-								<DatePicker id="__datePicker"/>
-								<DatePicker id="__datePicker2"/>
+								<DatePicker id="__datePicker" valueFormat="yyyy-MM-dd"/>
+								<DatePicker id="__datePicker2" valueFormat="yyyy-MM-dd"/>
 								<Label text="Estado" id="__label1"/>
 								<Input width="100%" id="__input2" showValueHelp="true" valueHelpRequest="fnStatus" valueHelpOnly="true"/>
 								<CheckBox text="Gestion" id="_checkGestion"/>
@@ -24,59 +24,57 @@
 						</sap.ui.layout.form:content>
 					</sap.ui.layout.form:SimpleForm>
 					<Panel expandable="true" expanded="true" id="panel1" width="auto" headerText="Tabla" class="sapUiResponsiveMargin" visible="false">
-						<!--<table:Table id="Table1" rows="{/sociedad}">-->
-						<!--	<table:title>-->
-						<!--		<Text text="Datos"></Text>-->
-						<!--	</table:title>-->
-						<!--	<table:columns>-->
-						<!--		<table:Column sortProperty="sociedad">-->
-						<!--			<Label text="Sociedad"/>-->
-						<!--			<table:template>-->
-						<!--				<Text text="{Sociedad}"></Text>-->
-						<!--			</table:template>-->
-						<!--		</table:Column>-->
-						<!--		<table:Column sortProperty="cxp">-->
-						<!--			<Label text="CXP"/>-->
-						<!--			<table:template>-->
-						<!--				<Text text="{Cxp}"></Text>-->
-						<!--			</table:template>-->
-						<!--		</table:Column>-->
-						<!--		<table:Column sortProperty="tesoreria">-->
-						<!--			<Label text="Tesoreria"/>-->
-						<!--			<table:template>-->
-						<!--				<Text text="{Tesoreria}"></Text>-->
-						<!--			</table:template>-->
-						<!--		</table:Column>-->
-						<!--		<table:Column sortProperty="compra">-->
-						<!--			<Label text="Compra"/>-->
-						<!--			<table:template>-->
-						<!--				<Text text="{Compras}"></Text>-->
-						<!--			</table:template>-->
-						<!--		</table:Column>-->
-						<!--		<table:Column sortProperty="nomina">-->
-						<!--			<Label text="Nomina"/>-->
-						<!--			<table:template>-->
-						<!--				<Text text="{nomina}"></Text>-->
-						<!--			</table:template>-->
-						<!--		</table:Column>-->
-						<!--		<table:Column sortProperty="contabilidad">-->
-						<!--			<Label text="Contabilidad"/>-->
-						<!--			<table:template>-->
-						<!--				<Text text="{Contabilidad}"></Text>-->
-						<!--			</table:template>-->
-						<!--		</table:Column>-->
-						<!--		<table:Column sortProperty="total">-->
-						<!--			<Label text="Total"/>-->
-						<!--			<table:template>-->
-						<!--				<Text text="{Total}"></Text>-->
-						<!--			</table:template>-->
-						<!--		</table:Column>-->
-						<!--	</table:columns>-->
-						<!--</table:Table>-->
 						<Table id="Table1" inset="false" items="{ path: '/sociedad' }">
 							<headerToolbar>
 								<Toolbar>
 									<Title id="_titleTable" text="Datos" level="H2"/>
+									<ToolbarSpacer></ToolbarSpacer>
+									<Button icon="sap-icon://download" press="onDataExport"/>
+								</Toolbar>
+							</headerToolbar>
+							<columns>
+								<Column minScreenWidth="Tablet" hAlign="Center">
+									<Text text="Sociedad"/>
+								</Column>
+								<Column minScreenWidth="Tablet" hAlign="Center">
+									<Text text="CXP"/>
+								</Column>
+								<Column minScreenWidth="Tablet" hAlign="Center">
+									<Text text="Tesoreria"/>
+								</Column>
+								<Column minScreenWidth="Tablet" hAlign="Center">
+									<Text text="Compras"/>
+								</Column>
+								<Column minScreenWidth="Tablet" hAlign="Center">
+									<Text text="Nómina"/>
+								</Column>
+								<Column minScreenWidth="Tablet" hAlign="Center">
+									<Text text="Contabilidad"/>
+								</Column>
+								<Column minScreenWidth="Tablet" hAlign="Center">
+									<Text text="Total"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<cells>
+										<Text text="{Sociedad}"/>
+										<Text text="{Cxp}"/>
+										<Text text="{Tesoreria}"/>
+										<Text text="{Compras}"/>
+										<Text text="{Nomina}"/>
+										<Text text="{Contabilidad}"/>
+										<Text text="{Total}"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+						<Table id="Table2" inset="false" items="{ path: '/total' }">
+							<headerToolbar>
+								<Toolbar>
+									<Title id="_titleTable2" text="Datos" level="H2"/>
+									<ToolbarSpacer></ToolbarSpacer>
+									<Button icon="sap-icon://download" press="onDataExport"/>
 								</Toolbar>
 							</headerToolbar>
 							<columns>
@@ -117,43 +115,46 @@
 							</items>
 						</Table>
 					</Panel>
-					<!--<viz:VizFrame id="DueDateGridFrame" vizType="info/pie" uiConfig="{applicationSet:'fiori'}"-->
-					<!--	vizProperties="{plotArea:{dataLabel:{visible: true}}}">-->
-					<!--	<viz:dataset>-->
-					<!--		<viz.data:FlattenedDataset data="{/sociedad}">-->
-					<!--			<viz.data:dimensions>-->
-					<!--				<viz.data:DimensionDefinition name="Sociedad" value="{Sociedad}" displayValue="{Sociedad}"/>-->
-					<!--			</viz.data:dimensions>-->
-					<!--			<viz.data:measures>-->
-					<!--				<viz.data:MeasureDefinition value="{Total}" name="Total"/>-->
-					<!--			</viz.data:measures>-->
-					<!--		</viz.data:FlattenedDataset>-->
-					<!--	</viz:dataset>-->
-					<!--	<viz:feeds>-->
-					<!--		<viz.feeds:FeedItem uid="size" type="Measure" values="Total"/>-->
-					<!--		<viz.feeds:FeedItem uid="color" type="Dimension" values="Sociedad"/>-->
-					<!--	</viz:feeds>-->
-					<!--</viz:VizFrame>-->
-					<!--<viz:Popover id="vizPopover"></viz:Popover>	-->
 					<Panel expandable="true" expanded="true" id="panel2" width="auto" headerText="Gráfico" class="sapUiResponsiveMargin" visible="false">
-						<viz:VizFrame id="DueDateGridFrameDonut" vizType="info/donut" uiConfig="{applicationSet:'fiori'}"
-							vizProperties="{plotArea:{dataLabel:{visible: true}}}">
-							<viz:dataset>
-								<viz.data:FlattenedDataset data="{/sociedad}">
-									<viz.data:dimensions>
-										<viz.data:DimensionDefinition name="Sociedad" value="{Sociedad}" displayValue="{Sociedad}"/>
-									</viz.data:dimensions>
-									<viz.data:measures>
-										<viz.data:MeasureDefinition value="{Total}" name="Total"/>
-									</viz.data:measures>
-								</viz.data:FlattenedDataset>
-							</viz:dataset>
-							<viz:feeds>
-								<viz.feeds:FeedItem uid="size" type="Measure" values="Total"/>
-								<viz.feeds:FeedItem uid="color" type="Dimension" values="Sociedad"/>
-							</viz:feeds>
-						</viz:VizFrame>
-						<viz:Popover id="vizPopoverDonut"></viz:Popover>
+						<layout:HorizontalLayout>
+							<viz:VizFrame id="DueDateGridFrameDonut" vizType="info/donut" uiConfig="{applicationSet:'fiori'}"
+								vizProperties="{plotArea:{dataLabel:{visible: true}}}">
+								<viz:dataset>
+									<viz.data:FlattenedDataset data="{/sociedad}">
+										<viz.data:dimensions>
+											<viz.data:DimensionDefinition name="Sociedad" value="{Sociedad}" displayValue="{Sociedad}"/>
+										</viz.data:dimensions>
+										<viz.data:measures>
+											<viz.data:MeasureDefinition value="{Total}" name="Total"/>
+										</viz.data:measures>
+									</viz.data:FlattenedDataset>
+								</viz:dataset>
+								<viz:feeds>
+									<viz.feeds:FeedItem uid="size" type="Measure" values="Total"/>
+									<viz.feeds:FeedItem uid="color" type="Dimension" values="Sociedad"/>
+								</viz:feeds>
+							</viz:VizFrame>
+							<viz:Popover id="vizPopoverDonut"></viz:Popover>
+							<viz:VizFrame id="DueDateGridFrameDonutTotal" vizType="info/donut" uiConfig="{applicationSet:'fiori'}"
+								vizProperties="{plotArea:{dataLabel:{visible: true}}}">
+								<viz:dataset>
+									<viz.data:FlattenedDataset data="{/totalGrafico}">
+										<viz.data:dimensions>
+											<viz.data:DimensionDefinition name="Torre" value="{Torre}" displayValue="{Torre}"/>
+										</viz.data:dimensions>
+										<viz.data:measures>
+											<viz.data:MeasureDefinition value="{Total}" name="Total"/>
+										</viz.data:measures>
+									</viz.data:FlattenedDataset>
+								</viz:dataset>
+								<viz:feeds>
+									<viz.feeds:FeedItem uid="size" type="Measure" values="Total"/>
+									<viz.feeds:FeedItem uid="color" type="Dimension" values="Torre"/>
+								</viz:feeds>
+							</viz:VizFrame>
+							<viz:Popover id="vizPopoverDonutTotal"></viz:Popover>
+						</layout:HorizontalLayout>
+						<!-- sap.ui.core.Control -->
 					</Panel>
 				</content>
 			</Page>
