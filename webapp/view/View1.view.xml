@@ -72,7 +72,7 @@
 						<Table id="Table2" inset="false" items="{ path: '/total' }">
 							<headerToolbar>
 								<Toolbar>
-									<Title id="_titleTable2" text="Datos" level="H2"/>
+									<Title id="_titleTable2" text="Total Tickets Por Torre" level="H2"/>
 									<ToolbarSpacer></ToolbarSpacer>
 									<Button icon="sap-icon://download" press="onDataExport"/>
 								</Toolbar>
