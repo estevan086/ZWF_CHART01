@@ -145,7 +145,7 @@ sap.ui.define([
 			table1.setModel(oModel);
 			vTitleTable.setText(vTitle);
 
-			this.fnSetGraficoTotal(vRowTotal);
+			this.fnSetGraficoTotal(vRowTotal, oRead.datos.results[0].Titulo);
 		},
 
 		//Funciones Nuevas	
@@ -504,10 +504,10 @@ sap.ui.define([
 
 		},
 
-		fnSetGraficoTotal: function(pTotal) {
+		fnSetGraficoTotal: function(pTotal, pTitle) {
 			var oVizFrameDonutTotal = this.byId('DueDateGridFrameDonutTotal'),
 				oVizPopoverDonutTotal = this.byId('vizPopoverDonutTotal'),
-				vTitleTotal = "Total Tickets Por Torre",
+				vTitleTotal = pTitle + " por torre",
 				// vListTotal = [],
 				oData = {},
 				oDataTable = {

@@ -29,7 +29,7 @@
 								<Toolbar>
 									<Title id="_titleTable" text="Datos" level="H2"/>
 									<ToolbarSpacer></ToolbarSpacer>
-									<Button icon="sap-icon://download" press="onDataExport"/>
+									<!--<Button icon="sap-icon://download" press="onDataExport"/>-->
 								</Toolbar>
 							</headerToolbar>
 							<columns>
@@ -74,7 +74,7 @@
 								<Toolbar>
 									<Title id="_titleTable2" text="Total Tickets Por Torre" level="H2"/>
 									<ToolbarSpacer></ToolbarSpacer>
-									<Button icon="sap-icon://download" press="onDataExport"/>
+									<!--<Button icon="sap-icon://download" press="onDataExport"/>-->
 								</Toolbar>
 							</headerToolbar>
 							<columns>
