@@ -10,7 +10,7 @@
 		confirm="fnSeleccionarProceso"
 		cancel="fnCloseFragment">
 		<StandardListItem
-			title="{Desdproc}"
+			title="{Desproc}"
 			description="{Codproc}-{Desproc}" />
 	</SelectDialog>
 </core:FragmentDefinition>

@@ -852,7 +852,7 @@ sap.ui.define([
 
 			this.fnCloseFragment();
 		},
-		
+
 		/**
 		 * Abrir mathcode proceso
 		 * @public
@@ -862,7 +862,7 @@ sap.ui.define([
 			this.fnOpenDialog("com.report.view.fragment.Proceso");
 			this.fnConsultarProceso();
 		},
-		
+
 		/**
 		 * Obtener Sociedad Mahtcode
 		 * @public
@@ -886,7 +886,7 @@ sap.ui.define([
 			var oModel = new sap.ui.model.json.JSONModel(oDataProceso);
 			oLista.setModel(oModel);
 		},
-		
+
 		/**
 		 * Obtener procesos para filtrar
 		 * @public
@@ -913,7 +913,7 @@ sap.ui.define([
 
 			return vTorreArray;
 		},
-		
+
 		/**
 		 * Obtener Proceso Sincrono
 		 * @public
@@ -936,7 +936,66 @@ sap.ui.define([
 			}
 
 			return vTorreArray;
-		}		
-		
+		},
+
+		/**
+		 * Buscar proceso
+		 * @public
+		 */
+		fnBuscarProceso: function(oEvent) {
+			var sQuery = oEvent.getParameter("value");
+			var filters = [],
+				filter1 = "",
+				filter2 = "";
+
+			if (sQuery && sQuery.length > 0) {
+				filter1 = new sap.ui.model.Filter("Desproc", sap.ui.model.FilterOperator.Contains, sQuery);
+				filter2 = new sap.ui.model.Filter("Codproc", sap.ui.model.FilterOperator.Contains, sQuery);
+				filters = new sap.ui.model.Filter([filter1, filter2], false);
+				// filters = [new sap.ui.model.Filter("Maktx", sap.ui.model.FilterOperator.Contains, sQuery)];
+			}
+
+			// Update list binding
+			sap.ui.getCore().byId("lstProceso").getBinding("items").filter(filters);
+
+			//On phone devices, there is nothing to select from the list
+			if (sap.ui.Device.system.phone) {
+				return;
+			}
+
+		},
+
+		/**
+		 * Seleccionar proceso
+		 * @public
+		 */
+		fnSeleccionarProceso: function(oEvent) {
+
+			//Contexto del item seleccionado
+			var bindingContext = oEvent.getParameters().selectedItem.getBindingContext(),
+				vSociedadId = this.inputActi.split("--"),
+				//Asignar Valor
+				oSociedad = this.getView().byId(vSociedadId[1]);
+			oSociedad.setValue(bindingContext.getProperty("Desproc"));
+			oSociedad.setName(bindingContext.getProperty("Codproc"));
+
+			this.fnCloseFragment();
+		},
+
+		/**
+		 * Consultar Gráfico Barra
+		 * @public
+		 */
+		fnConsultarBarra: function() {
+
+			var vFechaPa = this.getView().byId("__datePicker").getValue();
+
+			if (vFechaPa === "") {
+				MessageBox.error("El parámetro fecha es obligatorio", null, "Mensaje del sistema", "OK", null);
+				return;
+
+			}
+
+		}
 	});
 });

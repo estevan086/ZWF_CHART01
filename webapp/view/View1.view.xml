@@ -178,7 +178,7 @@
 											<Label text="Proceso" id="__labelBarraProceso"/>
 											<Input width="100%" id="__inputBarraProceso" showValueHelp="true" valueHelpRequest="fnProceso" valueHelpOnly="true"/>
 											<layout:HorizontalLayout>
-												<Button text="Consultar" id="__buttonBarra1" type="Accept" press="fnConsultar"/>
+												<Button text="Consultar" id="__buttonBarra1" type="Accept" press="fnConsultarBarra"/>
 												<Button text="Limpiar" id="__buttonBarra2" type="Emphasized" press="fnLimpiar"/>
 											</layout:HorizontalLayout>
 										</layout:VerticalLayout>
