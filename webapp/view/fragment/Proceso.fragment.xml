@@ -1,0 +1,16 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<SelectDialog
+		id="lstProceso"
+		title="{i18n>titleProceso}"
+		class="sapUiPopupWithPadding"
+		items="{ path : '/lstItemsProceso' }"
+		liveChange="fnBuscarProceso"
+		confirm="fnSeleccionarProceso"
+		cancel="fnCloseFragment">
+		<StandardListItem
+			title="{Desdproc}"
+			description="{Codproc}-{Desproc}" />
+	</SelectDialog>
+</core:FragmentDefinition>

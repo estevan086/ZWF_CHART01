@@ -1,6 +1,10 @@
 /*global location */
 //Almacena las promesas lanzadas
-var vPromise = {};
+var vPromise = {
+	torre: "",
+	sociedad: "",
+	proceso: ""
+};
 
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
@@ -14,8 +18,14 @@ sap.ui.define([
 	return Controller.extend("com.report.controller.View1", {
 
 		onInit: function() {
+			//Lanzar promesa para obtener sociedad
+			this.fnObtenerSociedadAsyn();
 			//Lanzar promesa para obtener status
 			this.fnObtenerStatus();
+			//Lanzar promesa para obtener torres
+			this.fnObtenerTorreAsyn();
+			//Lanzar promesa para obtener proceso
+			this.fnObtenerProcesoAsyn();
 
 			var oData = {
 				"sociedad": [{
@@ -228,7 +238,8 @@ sap.ui.define([
 			return promise;
 		},
 
-		fnStatus: function() {
+		fnStatus: function(oEvent) {
+			this.inputActi = oEvent.getSource().sId;
 			this.fnOpenDialog("com.report.view.fragment.ListStatus");
 			this.fnObtenerDatosListaStatus();
 		},
@@ -294,7 +305,7 @@ sap.ui.define([
 
 				//Si no existe la promesa, se consulta en modo sincrono
 			} else {
-				this.fnObtenerListStatusSyn(vInveNum.getValue());
+				this.fnObtenerListStatusSyn();
 			}
 		},
 
@@ -338,7 +349,8 @@ sap.ui.define([
 		fnSeleccionarStatus: function(oEvent) {
 			//Contexto del item seleccionado
 			var bindingContext = oEvent.getParameters().selectedItem.getBindingContext(),
-				vStatus = this.getView().byId("__input2");
+				vStatusId = this.inputActi.split("--"),
+				vStatus = this.getView().byId(vStatusId[1]);
 
 			vStatus.setValue(bindingContext.getProperty("Desstat"));
 			vStatus.setName(bindingContext.getProperty("Statustk"));
@@ -515,11 +527,13 @@ sap.ui.define([
 				},
 				oModel = "",
 				vTable2 = this.byId("Table2"),
+				vTitleTable2 = this.getView().byId("_titleTable2"),
 				oModelTable = "";
 
 			oDataTable.total.push(pTotal);
 			oModelTable = new sap.ui.model.json.JSONModel(oDataTable);
 			vTable2.setModel(oModelTable);
+			vTitleTable2.setText(vTitleTotal);
 
 			oData.totalGrafico = this.fnObtenerArrayTotalTorre(pTotal);
 
@@ -534,7 +548,395 @@ sap.ui.define([
 					text: vTitleTotal
 				}
 			});
-		}
+		},
 
+		/**
+		 * Obtener procesos
+		 * @public
+		 */
+		fnObtenerTorreAsyn: function() {
+			//Url Servicio
+			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
+				//Definir modelo del servicio web
+				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true);
+
+			if (!vPromise.torre) {
+				vPromise.torre = this.fnReadEntityAsyn(oModelService, "/TorreFiltroSet", null, true);
+			}
+		},
+
+		/**
+		 * Obtener procesos
+		 * @public
+		 */
+		fnObtenerProcesoAsyn: function() {
+			//Url Servicio
+			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
+				//Definir modelo del servicio web
+				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true);
+
+			if (!vPromise.proceso) {
+				vPromise.proceso = this.fnReadEntityAsyn(oModelService, "/ProcesoFiltroSet", null, true);
+			}
+		},
+
+		/**
+		 * Abrir mathcode torre
+		 * @public
+		 */
+		fnTorre: function(oEvent) {
+			this.inputActi = oEvent.getSource().sId;
+			this.fnOpenDialog("com.report.view.fragment.Torre");
+			this.fnConsultarTorre();
+		},
+
+		/**
+		 * Obtener las torres para filtrar
+		 * @public
+		 */
+		fnObtenerFiltroTorre: function() {
+			var vTorrePromise,
+				vTorreArray = [];
+
+			//Obtengo la promesa para torres
+			if (vPromise.torre) {
+				vPromise.torre.then(function(data) {
+					vTorrePromise = data;
+				});
+			}
+
+			//Si existe la promesa se pasan los datos
+			if (vTorrePromise && vTorrePromise.tipo === 'S') {
+				vTorreArray = vTorrePromise.datos.results;
+
+				//Si no existe la promesa, se consulta en modo sincrono
+			} else {
+				vTorreArray = this.fnObtenerTorreSyn();
+			}
+
+			return vTorreArray;
+		},
+
+		/**
+		 * Obtener Torres Sincrono
+		 * @public
+		 */
+		fnObtenerTorreSyn: function() {
+			//Url Servicio
+			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
+				//Definir modelo del servicio web
+				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true),
+				vTorreArray = [];
+
+			//Leer datos del ERP
+			var oRead = this.fnReadEntity(oModelService, "/TorreFiltroSet", null, false);
+
+			//Si hay exito en el servicio
+			if (oRead.tipo === "S") {
+				vTorreArray = oRead.datos.results;
+			} else {
+				MessageBox.error(oRead.msjs, null, "Mensaje del sistema", "OK", null);
+			}
+
+			return vTorreArray;
+		},
+
+		/**
+		 * Obtener Torre Mahtcode
+		 * @public
+		 */
+		fnConsultarTorre: function() {
+			var oDataTorre = "",
+				vListTorre = [];
+
+			//Obtener torres	
+			vListTorre = this.fnObtenerFiltroTorre();
+
+			//SI el modelo NO existe, se crea.
+			if (!oDataTorre) {
+				oDataTorre = {
+					lstItemsTorre: []
+				};
+			}
+
+			oDataTorre.lstItemsTorre = vListTorre;
+			var oLista = sap.ui.getCore().getElementById("lstTorre");
+			var oModel = new sap.ui.model.json.JSONModel(oDataTorre);
+			oLista.setModel(oModel);
+		},
+
+		/**
+		 * Seleccionar Torre
+		 * @public
+		 */
+		fnSeleccionarTorre: function(oEvent) {
+
+			//Contexto del item seleccionado
+			var bindingContext = oEvent.getParameters().selectedItem.getBindingContext(),
+				vTorreId = this.inputActi.split("--"),
+				//Asignar Valor
+				oTorre = this.getView().byId(vTorreId[1]);
+
+			oTorre.setValue(bindingContext.getProperty("Destorre"));
+			oTorre.setName(bindingContext.getProperty("Codtorre"));
+
+			this.fnCloseFragment();
+		},
+
+		/**
+		 * Buscar Torre
+		 * @public
+		 */
+		fnBuscarTorre: function(oEvent) {
+			var sQuery = oEvent.getParameter("value");
+			var filters = [],
+				filter1 = "",
+				filter2 = "";
+
+			if (sQuery && sQuery.length > 0) {
+				filter1 = new sap.ui.model.Filter("Destorre", sap.ui.model.FilterOperator.Contains, sQuery);
+				filter2 = new sap.ui.model.Filter("Codtorre", sap.ui.model.FilterOperator.Contains, sQuery);
+				filters = new sap.ui.model.Filter([filter1, filter2], false);
+				// filters = [new sap.ui.model.Filter("Maktx", sap.ui.model.FilterOperator.Contains, sQuery)];
+			}
+
+			// Update list binding
+			sap.ui.getCore().byId("lstTorre").getBinding("items").filter(filters);
+
+			//On phone devices, there is nothing to select from the list
+			if (sap.ui.Device.system.phone) {
+				return;
+			}
+		},
+
+		/**
+		 * Abrir mathcode sociedad
+		 * @public
+		 */
+		fnSociedad: function(oEvent) {
+			this.inputActi = oEvent.getSource().sId;
+			this.fnOpenDialog("com.report.view.fragment.Sociedad");
+			this.fnConsultarSociedad();
+		},
+
+		/**
+		 * Obtener Sociedad Mahtcode
+		 * @public
+		 */
+		fnConsultarSociedad: function() {
+			var oDataSociedad = "",
+				vListSociedad = [];
+
+			//Obtener torres	
+			vListSociedad = this.fnObtenerFiltroSociedad();
+
+			//SI el modelo NO existe, se crea.
+			if (!oDataSociedad) {
+				oDataSociedad = {
+					lstItemsSociedad: []
+				};
+			}
+
+			oDataSociedad.lstItemsSociedad = vListSociedad;
+			var oLista = sap.ui.getCore().getElementById("lstSociedad");
+			var oModel = new sap.ui.model.json.JSONModel(oDataSociedad);
+			oLista.setModel(oModel);
+		},
+
+		/**
+		 * Obtener las torres para filtrar
+		 * @public
+		 */
+		fnObtenerFiltroSociedad: function() {
+			var vTorrePromise,
+				vTorreArray = [];
+
+			//Obtengo la promesa para torres
+			if (vPromise.sociedad) {
+				vPromise.sociedad.then(function(data) {
+					vTorrePromise = data;
+				});
+			}
+
+			//Si existe la promesa se pasan los datos
+			if (vTorrePromise && vTorrePromise.tipo === 'S') {
+				vTorreArray = vTorrePromise.datos.results;
+
+				//Si no existe la promesa, se consulta en modo sincrono
+			} else {
+				vTorreArray = this.fnObtenerSociedadSyn();
+			}
+
+			return vTorreArray;
+		},
+
+		/**
+		 * Obtener Sociedad Sincrono
+		 * @public
+		 */
+		fnObtenerSociedadSyn: function() {
+			//Url Servicio
+			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
+				//Definir modelo del servicio web
+				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true),
+				vTorreArray = [];
+
+			//Leer datos del ERP
+			var oRead = this.fnReadEntity(oModelService, "/SociedadSet", null, false);
+
+			//Si hay exito en el servicio
+			if (oRead.tipo === "S") {
+				vTorreArray = oRead.datos.results;
+			} else {
+				MessageBox.error(oRead.msjs, null, "Mensaje del sistema", "OK", null);
+			}
+
+			return vTorreArray;
+		},
+
+		/**
+		 * Obtener sociedad
+		 * @public
+		 */
+		fnObtenerSociedadAsyn: function() {
+			//Url Servicio
+			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
+				//Definir modelo del servicio web
+				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true);
+
+			if (!vPromise.sociedad) {
+				vPromise.sociedad = this.fnReadEntityAsyn(oModelService, "/SociedadSet", null, true);
+			}
+		},
+
+		/**
+		 * Buscar sociedad
+		 * @public
+		 */
+		fnBuscarSociedad: function(oEvent) {
+			var sQuery = oEvent.getParameter("value");
+			var filters = [],
+				filter1 = "",
+				filter2 = "";
+
+			if (sQuery && sQuery.length > 0) {
+				filter1 = new sap.ui.model.Filter("Butxt", sap.ui.model.FilterOperator.Contains, sQuery);
+				filter2 = new sap.ui.model.Filter("Bukrs", sap.ui.model.FilterOperator.Contains, sQuery);
+				filters = new sap.ui.model.Filter([filter1, filter2], false);
+				// filters = [new sap.ui.model.Filter("Maktx", sap.ui.model.FilterOperator.Contains, sQuery)];
+			}
+
+			// Update list binding
+			sap.ui.getCore().byId("lstSociedad").getBinding("items").filter(filters);
+
+			//On phone devices, there is nothing to select from the list
+			if (sap.ui.Device.system.phone) {
+				return;
+			}
+
+		},
+
+		/**
+		 * Seleccionar sociedad
+		 * @public
+		 */
+		fnSeleccionarSociedad: function(oEvent) {
+
+			//Contexto del item seleccionado
+			var bindingContext = oEvent.getParameters().selectedItem.getBindingContext(),
+				vSociedadId = this.inputActi.split("--"),
+				//Asignar Valor
+				oSociedad = this.getView().byId(vSociedadId[1]);
+			oSociedad.setValue(bindingContext.getProperty("Butxt"));
+			oSociedad.setName(bindingContext.getProperty("Bukrs"));
+
+			this.fnCloseFragment();
+		},
+		
+		/**
+		 * Abrir mathcode proceso
+		 * @public
+		 */
+		fnProceso: function(oEvent) {
+			this.inputActi = oEvent.getSource().sId;
+			this.fnOpenDialog("com.report.view.fragment.Proceso");
+			this.fnConsultarProceso();
+		},
+		
+		/**
+		 * Obtener Sociedad Mahtcode
+		 * @public
+		 */
+		fnConsultarProceso: function() {
+			var oDataProceso = "",
+				vListProceso = [];
+
+			//Obtener proceso	
+			vListProceso = this.fnObtenerFiltroProceso();
+
+			//SI el modelo NO existe, se crea.
+			if (!oDataProceso) {
+				oDataProceso = {
+					lstItemsProceso: []
+				};
+			}
+
+			oDataProceso.lstItemsProceso = vListProceso;
+			var oLista = sap.ui.getCore().getElementById("lstProceso");
+			var oModel = new sap.ui.model.json.JSONModel(oDataProceso);
+			oLista.setModel(oModel);
+		},
+		
+		/**
+		 * Obtener procesos para filtrar
+		 * @public
+		 */
+		fnObtenerFiltroProceso: function() {
+			var vTorrePromise,
+				vTorreArray = [];
+
+			//Obtengo la promesa para torres
+			if (vPromise.proceso) {
+				vPromise.proceso.then(function(data) {
+					vTorrePromise = data;
+				});
+			}
+
+			//Si existe la promesa se pasan los datos
+			if (vTorrePromise && vTorrePromise.tipo === 'S') {
+				vTorreArray = vTorrePromise.datos.results;
+
+				//Si no existe la promesa, se consulta en modo sincrono
+			} else {
+				vTorreArray = this.fnObtenerProcesoSyn();
+			}
+
+			return vTorreArray;
+		},
+		
+		/**
+		 * Obtener Proceso Sincrono
+		 * @public
+		 */
+		fnObtenerProcesoSyn: function() {
+			//Url Servicio
+			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
+				//Definir modelo del servicio web
+				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true),
+				vTorreArray = [];
+
+			//Leer datos del ERP
+			var oRead = this.fnReadEntity(oModelService, "/ProcesoFiltroSet", null, false);
+
+			//Si hay exito en el servicio
+			if (oRead.tipo === "S") {
+				vTorreArray = oRead.datos.results;
+			} else {
+				MessageBox.error(oRead.msjs, null, "Mensaje del sistema", "OK", null);
+			}
+
+			return vTorreArray;
+		}		
+		
 	});
 });

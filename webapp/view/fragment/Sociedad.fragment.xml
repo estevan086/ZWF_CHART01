@@ -1,0 +1,16 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<SelectDialog
+		id="lstSociedad"
+		title="{i18n>titleSociedad}"
+		class="sapUiPopupWithPadding"
+		items="{ path : '/lstItemsSociedad' }"
+		liveChange="fnBuscarSociedad"
+		confirm="fnSeleccionarSociedad"
+		cancel="fnCloseFragment">
+		<StandardListItem
+			title="{Butxt}"
+			description="{Bukrs}" />
+	</SelectDialog>
+</core:FragmentDefinition>

@@ -1,0 +1,16 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<SelectDialog
+		id="lstTorre"
+		title="{i18n>titleTorre}"
+		class="sapUiPopupWithPadding"
+		items="{ path : '/lstItemsTorre' }"
+		liveChange="fnBuscarTorre"
+		confirm="fnSeleccionarTorre"
+		cancel="fnCloseFragment">
+		<StandardListItem
+			title="{Destorre}"
+			description="{Codtorre}" />
+	</SelectDialog>
+</core:FragmentDefinition>
