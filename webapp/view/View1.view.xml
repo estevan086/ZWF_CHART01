@@ -160,7 +160,7 @@
 									<!-- sap.ui.core.Control -->
 								</Panel>
 							</IconTabFilter>
-							<IconTabFilter text="Tiempo Por Proceso" icon="sap-icon://bar-chart" iconColor="Positive" id="__filter1">
+							<IconTabFilter text="Gest.Proceso" icon="sap-icon://bar-chart" iconColor="Positive" id="__filter1">
 								<sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true"
 									layout="ResponsiveGridLayout" id="__form1">
 									<sap.ui.layout.form:content>
@@ -185,31 +185,82 @@
 									</sap.ui.layout.form:content>
 								</sap.ui.layout.form:SimpleForm>
 								<Panel expandable="true" expanded="true" id="panel3" width="auto" headerText="Gráfico" class="sapUiResponsiveMargin" visible="true">
-										<chart:ChartContainer id="chartContainerBarra1" showFullScreen="true" showPersonalization="false" autoAdjustHeight="true" showLegend="true"
-											personalizationPress="attachPersonalizationPress" contentChange="attachContentChange" title="Opciones">
-											<chart:content>
-												<chart:ChartContainerContent icon="sap-icon://line-chart" title="Opciones">
-													<chart:content>
-														<viz:Popover id="idPopOverBarraTime"></viz:Popover>
-														<viz:VizFrame id="idVizFrameBarraTime" uiConfig="{applicationSet:'fiori'}" vizType='bullet'></viz:VizFrame>
-													</chart:content>
-												</chart:ChartContainerContent>
-											</chart:content>
-										</chart:ChartContainer>
-										<chart:ChartContainer id="chartContainerBarra2" showFullScreen="true" showPersonalization="false" autoAdjustHeight="true" showLegend="true"
-											personalizationPress="attachPersonalizationPress" contentChange="attachContentChange" title="Opciones">
-											<chart:content>
-												<chart:ChartContainerContent icon="sap-icon://line-chart" title="Opciones">
-													<chart:content>
-														<viz:Popover id="idPopOverBarraCant"></viz:Popover>
-														<viz:VizFrame id="idVizFrameBarraCant" uiConfig="{applicationSet:'fiori'}" vizType='bullet'></viz:VizFrame>
-													</chart:content>
-												</chart:ChartContainerContent>
-											</chart:content>
-										</chart:ChartContainer>
+									<chart:ChartContainer id="chartContainerBarra1" showFullScreen="true" showPersonalization="false" autoAdjustHeight="true" showLegend="true"
+										personalizationPress="attachPersonalizationPress" contentChange="attachContentChange" title="Opciones">
+										<chart:content>
+											<chart:ChartContainerContent icon="sap-icon://line-chart" title="Opciones">
+												<chart:content>
+													<viz:Popover id="idPopOverBarraTime"></viz:Popover>
+													<viz:VizFrame id="idVizFrameBarraTime" uiConfig="{applicationSet:'fiori'}" vizType='bullet'></viz:VizFrame>
+												</chart:content>
+											</chart:ChartContainerContent>
+										</chart:content>
+									</chart:ChartContainer>
+									<chart:ChartContainer id="chartContainerBarra2" showFullScreen="true" showPersonalization="false" autoAdjustHeight="true" showLegend="true"
+										personalizationPress="attachPersonalizationPress" contentChange="attachContentChange" title="Opciones">
+										<chart:content>
+											<chart:ChartContainerContent icon="sap-icon://line-chart" title="Opciones">
+												<chart:content>
+													<viz:Popover id="idPopOverBarraCant"></viz:Popover>
+													<viz:VizFrame id="idVizFrameBarraCant" uiConfig="{applicationSet:'fiori'}" vizType='bullet'></viz:VizFrame>
+												</chart:content>
+											</chart:ChartContainerContent>
+										</chart:content>
+									</chart:ChartContainer>
 								</Panel>
 							</IconTabFilter>
-							<IconTabFilter text="Tickets Por Proceso" icon="sap-icon://bar-chart" iconColor="Positive" id="__filter2"></IconTabFilter>
+							<IconTabFilter text="Gest.Estatus" icon="sap-icon://donut-chart" iconColor="Positive" id="__filter2">
+								<sap.ui.layout.form:SimpleForm xmlns:sap.ui.layout.form="sap.ui.layout.form" xmlns:sap.ui.core="sap.ui.core" editable="true"
+									layout="ResponsiveGridLayout" id="__form2">
+									<sap.ui.layout.form:content>
+										<sap.ui.core:Title text="" id="__titleStatus1"/>
+										<layout:VerticalLayout>
+											<Label text="Fecha" id="__labelStatus1"/>
+											<DatePicker id="__datePickerStatus1" valueFormat="yyyy-MM-dd"/>
+											<DatePicker id="__datePickerStatus2" valueFormat="yyyy-MM-dd"/>
+											<Label text="Torre" id="__labelStatusTorre"/>
+											<Input width="100%" id="__inputStatusTorre" showValueHelp="true" valueHelpRequest="fnTorre" valueHelpOnly="true"/>
+											<Label text="Sociedad" id="__labelStatusSociedad"/>
+											<Input width="100%" id="__inputStatusSociedad" showValueHelp="true" valueHelpRequest="fnSociedad" valueHelpOnly="true"/>
+											<Label text="Proceso" id="__labelStatusProceso"/>
+											<Input width="100%" id="__inputStatusProceso" showValueHelp="true" valueHelpRequest="fnProceso" valueHelpOnly="true"/>
+											<layout:HorizontalLayout>
+												<Button text="Consultar" id="__buttonStatus1" type="Accept" press="fnConsultarStatus"/>
+												<Button text="Limpiar" id="__buttonStatus2" type="Emphasized" press="fnLimpiarBarra"/>
+											</layout:HorizontalLayout>
+										</layout:VerticalLayout>
+									</sap.ui.layout.form:content>
+								</sap.ui.layout.form:SimpleForm>
+								<Panel expandable="true" expanded="true" id="panel4" width="auto" headerText="Gráfico" class="sapUiResponsiveMargin" visible="true">
+									<chart:ChartContainer id="chartContainerStatus1" showFullScreen="true" showPersonalization="false" autoAdjustHeight="true" showLegend="true"
+										personalizationPress="attachPersonalizationPress" contentChange="attachContentChange" title="Opciones">
+										<chart:content>
+											<chart:ChartContainerContent icon="sap-icon://line-chart" title="Opciones">
+												<chart:content>
+													<viz:Popover id="vizPopoverDonutStatus"></viz:Popover>
+													<viz:VizFrame id="DueDateGridFrameDonutStatus" vizType="info/donut" uiConfig="{applicationSet:'fiori'}"
+														vizProperties="{plotArea:{dataLabel:{visible: true}}}">
+														<viz:dataset>
+															<viz.data:FlattenedDataset data="{/totalGrafico}">
+																<viz.data:dimensions>
+																	<viz.data:DimensionDefinition name="Status" value="{Status}" displayValue="{Status}"/>
+																</viz.data:dimensions>
+																<viz.data:measures>
+																	<viz.data:MeasureDefinition value="{Total}" name="Total"/>
+																</viz.data:measures>
+															</viz.data:FlattenedDataset>
+														</viz:dataset>
+														<viz:feeds>
+															<viz.feeds:FeedItem uid="size" type="Measure" values="Total"/>
+															<viz.feeds:FeedItem uid="color" type="Dimension" values="Status"/>
+														</viz:feeds>
+													</viz:VizFrame>
+												</chart:content>
+											</chart:ChartContainerContent>
+										</chart:content>
+									</chart:ChartContainer>
+								</Panel>
+							</IconTabFilter>
 						</items>
 					</IconTabBar>
 				</content>

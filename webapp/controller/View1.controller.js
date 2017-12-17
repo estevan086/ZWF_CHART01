@@ -71,19 +71,6 @@ sap.ui.define([
 
 			}
 
-			// this.getView().byId("__datePicker").setLocale("en-US");
-			// this.getView().byId("__datePicker2").setLocale("en-US");
-			// vFecha = this.getView().byId("__datePicker").getValue().split("/"),
-			// vFecha2 = this.getView().byId("__datePicker2").getValue().split("/"),	
-			// vAno = 20 + vFecha[2],
-			// vDia = vFecha[1].length === 1 ? "0" + vFecha[1] : vFecha[1],
-			// vMes = vFecha[0].length === 1 ? "0" + vFecha[0] : vFecha[0],
-			// vFechaValue = vAno + "-" + vMes + "-" + vDia + "T00:00:00",
-			// vAno2 = 20 + vFecha2[2],
-			// vDia2 = vFecha2[1].length === 1 ? "0" + vFecha2[1] : vFecha2[1],
-			// vMes2 = vFecha2[0].length === 1 ? "0" + vFecha2[0] : vFecha2[0],
-			// vFechaValue2 = vAno2 + "-" + vMes2 + "-" + vDia2 + "T00:00:00",			
-
 			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
 				//Definir modelo del servicio web
 				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true),
@@ -530,6 +517,7 @@ sap.ui.define([
 				vTitleTable2 = this.getView().byId("_titleTable2"),
 				oModelTable = "";
 
+			pTotal.Sociedad = "TOTAL";
 			oDataTable.total.push(pTotal);
 			oModelTable = new sap.ui.model.json.JSONModel(oDataTable);
 			vTable2.setModel(oModelTable);
@@ -1083,7 +1071,7 @@ sap.ui.define([
 				// 	visible: true
 				// },
 				title: {
-					text: "Stacked Bar Chart"
+					text: "Tiempo por proceso"
 				}
 			});
 
@@ -1155,7 +1143,7 @@ sap.ui.define([
 					visible: true
 				},
 				title: {
-					text: "Stacked Bar Chart"
+					text: "Ticket por proceso"
 				}
 			});
 
@@ -1208,6 +1196,119 @@ sap.ui.define([
 			vTorre.setValue(null);
 			vSociedad.setValue(null);
 			vProceso.setValue(null);
+		},
+
+		/**
+		 * Consultar Gráfico Barra
+		 * @public
+		 */
+		fnConsultarStatus: function() {
+
+			var vFechaPa = this.getView().byId("__datePickerStatus1").getValue(),
+				vFechaFn = this.getView().byId("__datePickerStatus2").getValue(),
+				vTorre = this.getView().byId("__inputStatusTorre"),
+				vSociedad = this.getView().byId("__inputStatusSociedad"),
+				vProceso = this.getView().byId("__inputStatusProceso"),
+				sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
+				//Definir modelo del servicio web
+				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true),
+				vFechaValue = vFechaPa + "T00:00:00",
+				vFechaValue2 = vFechaFn + "T00:00:00",
+				oRead = "",
+				oDataStatus = {
+					items: []
+				};
+
+			if (vFechaPa === "") {
+				MessageBox.error("El parámetro fecha es obligatorio", null, "Mensaje del sistema", "OK", null);
+				return;
+
+			}
+
+			//Leer datos del ERP
+			oRead = this.fnReadEntity(oModelService, "/GraficoStatusTicketSet?$filter=Fecin eq datetime'" + vFechaValue +
+				"' and Fecfi eq datetime'" +
+				vFechaValue2 + "' and Codtorre eq '" + vTorre.getName() + "' and Bukrs eq '" + vSociedad.getName() +
+				"' and Codproc eq '" + vProceso.getName() + "'", null, false);
+			if (oRead.tipo === "S") {
+				oDataStatus.items = oRead.datos.results;
+			} else {
+				MessageBox.error(oRead.msjs, null, "Mensaje del sistema", "OK", null);
+			}
+
+			this.fnSetGraficoStatus(oDataStatus);
+		},
+
+		/**
+		 * Gráfico status
+		 * @public
+		 */
+		fnSetGraficoStatus: function(pData) {
+			var oVizFrameDonutTotal = this.byId('DueDateGridFrameDonutStatus'),
+				oVizPopoverDonutTotal = this.byId('vizPopoverDonutStatus'),
+				oModel = "",
+				oData = {
+					totalGrafico: []
+				},
+				vTitle = "";
+
+			oData.totalGrafico = this.fnObtenerArrayStatus(pData.items[0]);
+
+			oModel = new sap.ui.model.json.JSONModel(oData);
+			
+			vTitle = pData.items[0].Socie + "        Torre: " + pData.items[0].Desto;
+
+			oVizFrameDonutTotal.setModel(oModel);
+
+			oVizPopoverDonutTotal.connect(oVizFrameDonutTotal.getVizUid());
+			oVizFrameDonutTotal.setVizProperties({
+				title: {
+					text: vTitle
+				}
+			});
+		},
+
+		/**
+		 * Obtener data para gráfico status
+		 * @public
+		 */
+		fnObtenerArrayStatus: function(pFilaArray) {
+			var vTotalList = [];
+			// vItemTotal = {Torre: "", Total: ""};
+
+			for (var property in pFilaArray) {
+				var vItemTotal = {};
+
+				switch (property) {
+					case "Abierto":
+						vItemTotal.Status = property;
+						vItemTotal.Total = pFilaArray[property];
+
+						vTotalList.push(vItemTotal);
+
+						break;
+
+					case "Cerrado":
+						vItemTotal.Status = property;
+						vItemTotal.Total = pFilaArray[property];
+
+						vTotalList.push(vItemTotal);
+
+						break;
+
+					case "Anulado":
+						vItemTotal.Status = property;
+						vItemTotal.Total = pFilaArray[property];
+
+						vTotalList.push(vItemTotal);
+
+						break;
+					default:
+				}
+			}
+
+			return vTotalList;
+
 		}
 	});
 });
