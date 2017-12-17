@@ -988,7 +988,24 @@ sap.ui.define([
 		 */
 		fnConsultarBarra: function() {
 
-			var vFechaPa = this.getView().byId("__datePicker").getValue();
+			var vFechaPa = this.getView().byId("__datePickerBarra1").getValue(),
+				vFechaFn = this.getView().byId("__datePickerBarra2").getValue(),
+				vEstado = this.getView().byId("__inputBarra1"),
+				vTorre = this.getView().byId("__inputBarraTorre"),
+				vSociedad = this.getView().byId("__inputBarraSociedad"),
+				vProceso = this.getView().byId("__inputBarraProceso"),
+				sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
+				//Definir modelo del servicio web
+				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true),
+				vFechaValue = vFechaPa + "T00:00:00",
+				vFechaValue2 = vFechaFn + "T00:00:00",
+				oRead = "",
+				oData = {
+					items: []
+				},
+				oDataCant = {
+					items: []
+				};
 
 			if (vFechaPa === "") {
 				MessageBox.error("El parámetro fecha es obligatorio", null, "Mensaje del sistema", "OK", null);
@@ -996,6 +1013,201 @@ sap.ui.define([
 
 			}
 
+			//Leer datos del ERP
+			oRead = this.fnReadEntity(oModelService, "/GraficoTimeBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
+				"' and Fecfi eq datetime'" +
+				vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
+				"' and Bukrs eq '" + vSociedad.getName() + "' and Codproc eq '" + vProceso.getName() + "'", null, false);
+
+			if (oRead.tipo === "S") {
+				oData.items = oRead.datos.results;
+			} else {
+				MessageBox.error(oRead.msjs, null, "Mensaje del sistema", "OK", null);
+			}
+
+			this.fnGenerateGraphicTicketTime(oData);
+
+			//Leer datos del ERP
+			oRead = "";
+			oRead = this.fnReadEntity(oModelService, "/GraficoCantidadBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
+				"' and Fecfi eq datetime'" +
+				vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
+				"' and Bukrs eq '" + vSociedad.getName() + "' and Codproc eq '" + vProceso.getName() + "'", null, false);
+
+			if (oRead.tipo === "S") {
+				oDataCant.items = oRead.datos.results;
+			} else {
+				MessageBox.error(oRead.msjs, null, "Mensaje del sistema", "OK", null);
+			}
+
+			this.fnGenerateGraphicTicketCant(oDataCant);
+		},
+
+		fnGenerateGraphicTicketTime: function(pData) {
+			var vBarTime = this.getView().byId("idVizFrameBarraTime"),
+				vPopover = this.getView().byId("idPopOverBarraTime"),
+				oModelTable = new sap.ui.model.json.JSONModel(pData),
+				oDataset = new sap.viz.ui5.data.FlattenedDataset({
+					dimensions: [{
+						name: "Proceso",
+						value: "{Desproc}"
+					}],
+
+					measures: [{
+						name: "Dias",
+						value: "{Dias}"
+					}, {
+						name: "Horas",
+						value: "{Horde}"
+					}],
+
+					data: {
+						path: "/items"
+
+					}
+				});
+
+			vBarTime.setVizProperties({
+				plotArea: {
+					// colorPalette: d3.scale.category20().range(),
+					dataLabel: {
+						showTotal: true
+					},
+
+					tooltip: {
+						visible: true
+					}
+
+				},
+				// tooltip: {
+				// 	visible: true
+				// },
+				title: {
+					text: "Stacked Bar Chart"
+				}
+			});
+
+			vBarTime.setDataset(oDataset);
+			vBarTime.setModel(oModelTable);
+
+			var oFeedValueDia = new sap.viz.ui5.controls.common.feeds.FeedItem({
+					"uid": "valueAxis",
+					"type": "Measure",
+					"values": ["Dias"]
+				}),
+
+				oFeedValueHora = new sap.viz.ui5.controls.common.feeds.FeedItem({
+					"uid": "valueAxis",
+					"type": "Measure",
+					"values": ["Horas"]
+				}),
+
+				oFeedProceso = new sap.viz.ui5.controls.common.feeds.FeedItem({
+					"uid": "categoryAxis",
+					"type": "Dimension",
+					"values": ["Proceso"]
+				});
+
+			//Se valida que las opciones no existan
+			if (!vBarTime.getFeeds().length > 0) {
+				vBarTime.addFeed(oFeedValueDia);
+				vBarTime.addFeed(oFeedValueHora);
+				vBarTime.addFeed(oFeedProceso);
+			}
+
+			vPopover.connect(vBarTime.getVizUid());
+
+		},
+
+		fnGenerateGraphicTicketCant: function(pData) {
+			var vBarCant = this.getView().byId("idVizFrameBarraCant"),
+				vPopover = this.getView().byId("idPopOverBarraCant"),
+				oModelTable = new sap.ui.model.json.JSONModel(pData),
+				oDataset = new sap.viz.ui5.data.FlattenedDataset({
+					dimensions: [{
+						name: "Proceso",
+						value: "{Desproc}"
+					}],
+
+					measures: [{
+						name: "Cantidad",
+						value: "{Cantidad}"
+					}],
+
+					data: {
+						path: "/items"
+					}
+				});
+
+			vBarCant.setVizProperties({
+				plotArea: {
+					// colorPalette: d3.scale.category20().range(),
+					dataLabel: {
+						showTotal: true
+					},
+
+					tooltip: {
+						visible: true
+					}
+
+				},
+				tooltip: {
+					visible: true
+				},
+				title: {
+					text: "Stacked Bar Chart"
+				}
+			});
+
+			vBarCant.setDataset(oDataset);
+			vBarCant.setModel(oModelTable);
+
+			var oFeedValueDia = new sap.viz.ui5.controls.common.feeds.FeedItem({
+					"uid": "valueAxis",
+					"type": "Measure",
+					"values": ["Cantidad"]
+				}),
+
+				oFeedValueHora = new sap.viz.ui5.controls.common.feeds.FeedItem({
+					"uid": "valueAxis",
+					"type": "Measure",
+					"values": ["Cantidad"]
+				}),
+
+				oFeedProceso = new sap.viz.ui5.controls.common.feeds.FeedItem({
+					"uid": "categoryAxis",
+					"type": "Dimension",
+					"values": ["Proceso"]
+				});
+
+			//Se valida que las opciones no existan
+			if (!vBarCant.getFeeds().length > 0) {
+				vBarCant.addFeed(oFeedValueDia);
+				// vBarTime.addFeed(oFeedValueHora);
+				vBarCant.addFeed(oFeedProceso);
+			}
+
+			vPopover.connect(vBarCant.getVizUid());
+		},
+
+		/**
+		 * Limpiar campos filtros gráfico barras.
+		 * @public
+		 */
+		fnLimpiarBarra: function() {
+			var vStatus = this.getView().byId("__inputBarra1"),
+				vFecha = this.getView().byId("__datePickerBarra1"),
+				vFecha2 = this.getView().byId("__datePickerBarra2"),
+				vTorre = this.getView().byId("__inputBarraTorre"),
+				vSociedad = this.getView().byId("__inputBarraSociedad"),
+				vProceso = this.getView().byId("__inputBarraProceso");
+
+			vStatus.setValue(null);
+			vFecha.setValue(null);
+			vFecha2.setValue(null);
+			vTorre.setValue(null);
+			vSociedad.setValue(null);
+			vProceso.setValue(null);
 		}
 	});
 });
