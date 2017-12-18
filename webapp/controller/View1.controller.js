@@ -63,13 +63,43 @@ sap.ui.define([
 		},
 
 		fnConsultar: function() {
-			var vFechaPa = this.getView().byId("__datePicker").getValue();
+			var vFechaPa = this.getView().byId("__datePicker").getValue(),
+				inputs = [
+					this.getView().byId("__datePicker"),
+					this.getView().byId("__datePicker2")
+				],
+				
+				canContinue = true;
 
 			if (vFechaPa === "") {
 				MessageBox.error("El parámetro fecha es obligatorio", null, "Mensaje del sistema", "OK", null);
 				return;
 
 			}
+			
+			// check that inputs are not empty
+			// this does not happen during data binding as this is only triggered by changes
+			jQuery.each(inputs, function(i, input) {
+				input.setValueState("Success");
+				if (!input.getValue()) {
+					input.setValueState("Error");
+				}
+			});
+
+			jQuery.each(inputs, function(i, input) {
+				if ("Error" === input.getValueState()) {
+					canContinue = false;
+					return false;
+				}
+			});
+
+			if (!canContinue) {
+				jQuery.sap.require("sap.m.MessageBox");
+				sap.m.MessageBox.alert("Complete los campos obligatorios");
+				return;
+			}				
+
+
 
 			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
 				//Definir modelo del servicio web
@@ -993,13 +1023,44 @@ sap.ui.define([
 				},
 				oDataCant = {
 					items: []
-				};
+				},
+
+				inputs = [
+					this.getView().byId("__datePickerBarra1"),
+					this.getView().byId("__datePickerBarra2"),
+					this.getView().byId("__inputBarra1"),
+					this.getView().byId("__inputBarraTorre")
+				],
+				
+				canContinue = true;
 
 			if (vFechaPa === "") {
 				MessageBox.error("El parámetro fecha es obligatorio", null, "Mensaje del sistema", "OK", null);
 				return;
 
 			}
+			
+			// check that inputs are not empty
+			// this does not happen during data binding as this is only triggered by changes
+			jQuery.each(inputs, function(i, input) {
+				input.setValueState("Success");
+				if (!input.getValue()) {
+					input.setValueState("Error");
+				}
+			});
+
+			jQuery.each(inputs, function(i, input) {
+				if ("Error" === input.getValueState()) {
+					canContinue = false;
+					return false;
+				}
+			});
+
+			if (!canContinue) {
+				jQuery.sap.require("sap.m.MessageBox");
+				sap.m.MessageBox.alert("Complete los campos obligatorios");
+				return;
+			}			
 
 			//Leer datos del ERP
 			oRead = this.fnReadEntity(oModelService, "/GraficoTimeBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
@@ -1143,7 +1204,7 @@ sap.ui.define([
 					visible: true
 				},
 				title: {
-					text: "Ticket por proceso"
+					text: "Tickets por proceso"
 				}
 			});
 
@@ -1217,13 +1278,43 @@ sap.ui.define([
 				oRead = "",
 				oDataStatus = {
 					items: []
-				};
+				},
+				
+				inputs = [
+					this.getView().byId("__datePickerStatus1"),
+					this.getView().byId("__datePickerStatus2"),
+					this.getView().byId("__inputStatusTorre")
+				],
+				
+				canContinue = true;
 
 			if (vFechaPa === "") {
 				MessageBox.error("El parámetro fecha es obligatorio", null, "Mensaje del sistema", "OK", null);
 				return;
-
 			}
+			
+			// check that inputs are not empty
+			// this does not happen during data binding as this is only triggered by changes
+			jQuery.each(inputs, function(i, input) {
+				input.setValueState("Success");
+				if (!input.getValue()) {
+					input.setValueState("Error");
+				}
+			});
+
+			jQuery.each(inputs, function(i, input) {
+				if ("Error" === input.getValueState()) {
+					canContinue = false;
+					return false;
+				}
+			});
+
+			if (!canContinue) {
+				jQuery.sap.require("sap.m.MessageBox");
+				sap.m.MessageBox.alert("Complete los campos obligatorios");
+				return;
+			}			
+				
 
 			//Leer datos del ERP
 			oRead = this.fnReadEntity(oModelService, "/GraficoStatusTicketSet?$filter=Fecin eq datetime'" + vFechaValue +
@@ -1255,8 +1346,8 @@ sap.ui.define([
 			oData.totalGrafico = this.fnObtenerArrayStatus(pData.items[0]);
 
 			oModel = new sap.ui.model.json.JSONModel(oData);
-			
-			vTitle = pData.items[0].Socie + "        Torre: " + pData.items[0].Desto;
+
+			vTitle = pData.items[0].Socie + "\n       Torre: " + pData.items[0].Desto;
 
 			oVizFrameDonutTotal.setModel(oModel);
 
