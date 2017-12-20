@@ -6,6 +6,14 @@ var vPromise = {
 	proceso: ""
 };
 
+//Almacena procesos filtrados
+var vFiltroSelect = {
+	//..Para el tab __filter1
+	proceso: [],
+	//..Para el tab __filter2
+	procesoStatus: []
+};
+
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/m/MessageBox",
@@ -68,7 +76,7 @@ sap.ui.define([
 					this.getView().byId("__datePicker"),
 					this.getView().byId("__datePicker2")
 				],
-				
+
 				canContinue = true;
 
 			if (vFechaPa === "") {
@@ -76,7 +84,7 @@ sap.ui.define([
 				return;
 
 			}
-			
+
 			// check that inputs are not empty
 			// this does not happen during data binding as this is only triggered by changes
 			jQuery.each(inputs, function(i, input) {
@@ -97,9 +105,7 @@ sap.ui.define([
 				jQuery.sap.require("sap.m.MessageBox");
 				sap.m.MessageBox.alert("Complete los campos obligatorios");
 				return;
-			}				
-
-
+			}
 
 			var sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
 				//Definir modelo del servicio web
@@ -110,6 +116,7 @@ sap.ui.define([
 				vFechaValue = vFecha + "T00:00:00",
 				vFechaValue2 = vFecha2 + "T00:00:00",
 				vCheck = this.getView().byId("_checkGestion").getSelected() ? "X" : "",
+				vSociedad = this.getView().byId("__inputSociedad"),
 				oRead = "";
 			// vFechaValue = "2017" + "-" + "10" + "-" + "02" + "T00:00:00";
 			// "2017-10-01"
@@ -119,11 +126,11 @@ sap.ui.define([
 				//Leer datos del ERP
 				oRead = this.fnReadEntity(oModelService, "/SocGraficoSet?$filter=Datum eq datetime'" + vFechaValue +
 					"' and Datum2 eq datetime'" +
-					vFechaValue2 + "' and Estat eq '" + vStatus.getName() + "' and Gestion eq '" + vCheck + "'", null, false);
+					vFechaValue2 + "' and Estat eq '" + vStatus.getName() + "' and Gestion eq '" + vCheck + "' and Bukrs eq '" + vSociedad.getName() + "'", null, false);
 			} else {
 				oRead = this.fnReadEntity(oModelService, "/SocGraficoSet?$filter=Datum eq datetime'" + vFechaValue +
 					"' and Datum2 eq datetime'" +
-					vFechaValue2 + "' and Gestion eq '" + vCheck + "'", null, false);
+					vFechaValue2 + "' and Gestion eq '" + vCheck + "' and Bukrs eq '" + vSociedad.getName() + "'", null, false);
 			}
 
 			if (oRead.tipo === "S") {
@@ -157,6 +164,15 @@ sap.ui.define([
 			oVizFrameDonut.setVizProperties({
 				title: {
 					text: vTitle
+				},
+
+				plotArea: {
+
+					dataLabel: {
+						visible: true,
+						// formatString: "#,##%"
+						formatString: "#%"
+					}
 				}
 			});
 
@@ -403,12 +419,15 @@ sap.ui.define([
 			var vStatus = this.getView().byId("__input2"),
 				vFecha = this.getView().byId("__datePicker"),
 				vFecha2 = this.getView().byId("__datePicker2"),
-				vCheck = this.getView().byId("_checkGestion");
+				vCheck = this.getView().byId("_checkGestion"),
+				vSociedad = this.getView().byId("__inputSociedad");
 
 			vStatus.setValue(null);
 			vFecha.setValue(null);
 			vFecha2.setValue(null);
 			vCheck.setSelected(null);
+			vSociedad.setValue(null);
+			vSociedad.setName(null);
 		},
 
 		onDataExport: sap.m.Table.prototype.exportData || function(oEvent) {
@@ -564,6 +583,14 @@ sap.ui.define([
 			oVizFrameDonutTotal.setVizProperties({
 				title: {
 					text: vTitleTotal
+				},
+
+				plotArea: {
+					dataLabel: {
+						visible: true,
+						// formatString: "#,##%"
+						formatString: "#%"
+					}
 				}
 			});
 		},
@@ -693,10 +720,57 @@ sap.ui.define([
 			var bindingContext = oEvent.getParameters().selectedItem.getBindingContext(),
 				vTorreId = this.inputActi.split("--"),
 				//Asignar Valor
-				oTorre = this.getView().byId(vTorreId[1]);
+				oTorre = this.getView().byId(vTorreId[1]),
+				vListProceso = [],
+				vListProcesoFilter = [],
+				oLista = "",
+				oModel = "",
+				oDataProceso = "";
 
 			oTorre.setValue(bindingContext.getProperty("Destorre"));
 			oTorre.setName(bindingContext.getProperty("Codtorre"));
+
+			vListProceso = this.fnObtenerFiltroProceso();
+
+			switch (vTorreId[1]) {
+				case "__inputBarraTorre":
+
+					vListProcesoFilter = vListProceso.filter(results => results.Codtorre === bindingContext.getProperty("Codtorre"));
+
+					//SI el modelo NO existe, se crea.
+					if (!oDataProceso) {
+						oDataProceso = {
+							ProcesoSet: []
+						};
+					}
+
+					oLista = this.getView().byId("_procesoBarra");
+					oDataProceso.ProcesoSet = vListProcesoFilter;
+					oModel = new sap.ui.model.json.JSONModel(oDataProceso);
+					oLista.setModel(oModel);
+
+					break;
+
+				case "__inputStatusTorre":
+
+					vListProcesoFilter = vListProceso.filter(results => results.Codtorre === bindingContext.getProperty("Codtorre"));
+
+					//SI el modelo NO existe, se crea.
+					if (!oDataProceso) {
+						oDataProceso = {
+							ProcesoSet: []
+						};
+					}
+
+					oLista = this.getView().byId("_procesoComboBoxStatus");
+					oDataProceso.ProcesoSet = vListProcesoFilter;
+					oModel = new sap.ui.model.json.JSONModel(oDataProceso);
+					oLista.setModel(oModel);
+
+					break;
+
+				default:
+			}
 
 			this.fnCloseFragment();
 		},
@@ -1031,15 +1105,19 @@ sap.ui.define([
 					this.getView().byId("__inputBarra1"),
 					this.getView().byId("__inputBarraTorre")
 				],
-				
-				canContinue = true;
+
+				canContinue = true,
+
+				vFilterProceso = this.getView().byId("_procesoBarra").getSelectedKeys(),
+				vProcesoRange = "",
+				vCheck = this.getView().byId("_checkGestionBarra").getSelected() ? "X" : "";
 
 			if (vFechaPa === "") {
 				MessageBox.error("El parámetro fecha es obligatorio", null, "Mensaje del sistema", "OK", null);
 				return;
 
 			}
-			
+
 			// check that inputs are not empty
 			// this does not happen during data binding as this is only triggered by changes
 			jQuery.each(inputs, function(i, input) {
@@ -1060,13 +1138,50 @@ sap.ui.define([
 				jQuery.sap.require("sap.m.MessageBox");
 				sap.m.MessageBox.alert("Complete los campos obligatorios");
 				return;
-			}			
+			}
 
-			//Leer datos del ERP
-			oRead = this.fnReadEntity(oModelService, "/GraficoTimeBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
-				"' and Fecfi eq datetime'" +
-				vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
-				"' and Bukrs eq '" + vSociedad.getName() + "' and Codproc eq '" + vProceso.getName() + "'", null, false);
+			//Agregar filtros de proceso
+			for (var i = 0; i < vFilterProceso.length; i++) {
+				var vItemProceso = vFilterProceso[i];
+
+				if (i !== 0) {
+					vProcesoRange = vProcesoRange + " or Codproc eq '" + vItemProceso + "' ";
+				} else {
+					vProcesoRange = vProcesoRange + "Codproc eq '" + vItemProceso + "'";
+				}
+			}
+
+			// var prueba = "/GraficoTimeBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
+			// 		"' and Fecfi eq datetime'" +
+			// 		vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
+			// 		"' and Bukrs eq '" + vSociedad.getName() + "' and Codproc eq '" + vProceso.getName() + "'";
+
+			// 	//Leer datos del ERP
+			// 	oRead = this.fnReadEntity(oModelService, prueba, null, false);						
+
+			// //Leer datos del ERP
+			// oRead = this.fnReadEntity(oModelService, "/GraficoTimeBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
+			// 	"' and Fecfi eq datetime'" +
+			// 	vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
+			// 	"' and Bukrs eq '" + vSociedad.getName() + "' and Codproc eq '" + vProceso.getName() + "'", null, false);			
+
+			if (vProcesoRange !== "") {
+
+				//Leer datos del ERP
+				oRead = this.fnReadEntity(oModelService, "/GraficoTimeBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
+					"' and Fecfi eq datetime'" +
+					vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
+					"' and Bukrs eq '" + vSociedad.getName() + "' and (" + vProcesoRange + ")", null, false);
+
+			} else {
+
+				//Leer datos del ERP
+				oRead = this.fnReadEntity(oModelService, "/GraficoTimeBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
+					"' and Fecfi eq datetime'" +
+					vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
+					"' and Bukrs eq '" + vSociedad.getName() + "'", null, false);
+
+			}
 
 			if (oRead.tipo === "S") {
 				oData.items = oRead.datos.results;
@@ -1078,10 +1193,27 @@ sap.ui.define([
 
 			//Leer datos del ERP
 			oRead = "";
-			oRead = this.fnReadEntity(oModelService, "/GraficoCantidadBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
-				"' and Fecfi eq datetime'" +
-				vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
-				"' and Bukrs eq '" + vSociedad.getName() + "' and Codproc eq '" + vProceso.getName() + "'", null, false);
+			if (vProcesoRange !== "") {
+				//Leer datos del ERP
+				oRead = this.fnReadEntity(oModelService, "/GraficoCantidadBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
+					"' and Fecfi eq datetime'" +
+					vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
+					"' and Bukrs eq '" + vSociedad.getName() + "' and Gestion eq '" + vCheck + "' and (" + vProcesoRange + ")", null, false);
+			} else {
+
+				//Leer datos del ERP
+				oRead = this.fnReadEntity(oModelService, "/GraficoCantidadBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
+					"' and Fecfi eq datetime'" +
+					vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
+					"' and Bukrs eq '" + vSociedad.getName() + "' and Gestion eq '" + vCheck + "'", null, false);
+			}
+
+			// //Leer datos del ERP
+			// oRead = "";
+			// oRead = this.fnReadEntity(oModelService, "/GraficoCantidadBarraSet?$filter=Fecin eq datetime'" + vFechaValue +
+			// 	"' and Fecfi eq datetime'" +
+			// 	vFechaValue2 + "' and Estat eq '" + vEstado.getName() + "' and Codtorre eq '" + vTorre.getName() +
+			// 	"' and Bukrs eq '" + vSociedad.getName() + "' and Codproc eq '" + vProceso.getName() + "'", null, false);
 
 			if (oRead.tipo === "S") {
 				oDataCant.items = oRead.datos.results;
@@ -1172,6 +1304,7 @@ sap.ui.define([
 			var vBarCant = this.getView().byId("idVizFrameBarraCant"),
 				vPopover = this.getView().byId("idPopOverBarraCant"),
 				oModelTable = new sap.ui.model.json.JSONModel(pData),
+				vItemsText = pData.items[0],
 				oDataset = new sap.viz.ui5.data.FlattenedDataset({
 					dimensions: [{
 						name: "Proceso",
@@ -1179,7 +1312,8 @@ sap.ui.define([
 					}],
 
 					measures: [{
-						name: "Cantidad",
+						// name: "Cantidad",
+						name: vItemsText.GvTitulo,
 						value: "{Cantidad}"
 					}],
 
@@ -1204,7 +1338,7 @@ sap.ui.define([
 					visible: true
 				},
 				title: {
-					text: "Tickets por proceso"
+					text: "Tickets por proceso " + vItemsText.GvTorre
 				}
 			});
 
@@ -1214,7 +1348,8 @@ sap.ui.define([
 			var oFeedValueDia = new sap.viz.ui5.controls.common.feeds.FeedItem({
 					"uid": "valueAxis",
 					"type": "Measure",
-					"values": ["Cantidad"]
+					// "values": ["Gestión"]
+					"values": [vItemsText.GvTitulo]
 				}),
 
 				oFeedValueHora = new sap.viz.ui5.controls.common.feeds.FeedItem({
@@ -1229,12 +1364,14 @@ sap.ui.define([
 					"values": ["Proceso"]
 				});
 
+			vBarCant.removeAllFeeds();
+
 			//Se valida que las opciones no existan
-			if (!vBarCant.getFeeds().length > 0) {
-				vBarCant.addFeed(oFeedValueDia);
-				// vBarTime.addFeed(oFeedValueHora);
-				vBarCant.addFeed(oFeedProceso);
-			}
+			// if (!vBarCant.getFeeds().length > 0) {
+			vBarCant.addFeed(oFeedValueDia);
+			// vBarTime.addFeed(oFeedValueHora);
+			vBarCant.addFeed(oFeedProceso);
+			// }
 
 			vPopover.connect(vBarCant.getVizUid());
 		},
@@ -1249,14 +1386,20 @@ sap.ui.define([
 				vFecha2 = this.getView().byId("__datePickerBarra2"),
 				vTorre = this.getView().byId("__inputBarraTorre"),
 				vSociedad = this.getView().byId("__inputBarraSociedad"),
-				vProceso = this.getView().byId("__inputBarraProceso");
+				// vProceso = this.getView().byId("__inputBarraProceso"),
+				vListaProceso = this.getView().byId("_procesoBarra"),
+				vCheck = this.getView().byId("_checkGestionBarra");
 
 			vStatus.setValue(null);
 			vFecha.setValue(null);
 			vFecha2.setValue(null);
 			vTorre.setValue(null);
 			vSociedad.setValue(null);
-			vProceso.setValue(null);
+			vCheck.setSelected(null);
+			// vProceso.setValue(null);
+			vListaProceso.setSelectedKeys([]);
+			//Almacena procesos filtrados
+			vFiltroSelect.proceso = [];
 		},
 
 		/**
@@ -1269,7 +1412,7 @@ sap.ui.define([
 				vFechaFn = this.getView().byId("__datePickerStatus2").getValue(),
 				vTorre = this.getView().byId("__inputStatusTorre"),
 				vSociedad = this.getView().byId("__inputStatusSociedad"),
-				vProceso = this.getView().byId("__inputStatusProceso"),
+				// vProceso = this.getView().byId("__inputStatusProceso"),
 				sServiceUrl = "/sap/opu/odata/sap/ZSGW_CHARTS_SRV/",
 				//Definir modelo del servicio web
 				oModelService = new sap.ui.model.odata.ODataModel(sServiceUrl, true),
@@ -1279,20 +1422,22 @@ sap.ui.define([
 				oDataStatus = {
 					items: []
 				},
-				
+
 				inputs = [
 					this.getView().byId("__datePickerStatus1"),
 					this.getView().byId("__datePickerStatus2"),
 					this.getView().byId("__inputStatusTorre")
 				],
-				
-				canContinue = true;
+
+				canContinue = true,
+				vFilterProceso = this.getView().byId("_procesoComboBoxStatus").getSelectedKeys(),
+				vProcesoRange = "";
 
 			if (vFechaPa === "") {
 				MessageBox.error("El parámetro fecha es obligatorio", null, "Mensaje del sistema", "OK", null);
 				return;
 			}
-			
+
 			// check that inputs are not empty
 			// this does not happen during data binding as this is only triggered by changes
 			jQuery.each(inputs, function(i, input) {
@@ -1313,14 +1458,38 @@ sap.ui.define([
 				jQuery.sap.require("sap.m.MessageBox");
 				sap.m.MessageBox.alert("Complete los campos obligatorios");
 				return;
-			}			
-				
+			}
 
-			//Leer datos del ERP
-			oRead = this.fnReadEntity(oModelService, "/GraficoStatusTicketSet?$filter=Fecin eq datetime'" + vFechaValue +
-				"' and Fecfi eq datetime'" +
-				vFechaValue2 + "' and Codtorre eq '" + vTorre.getName() + "' and Bukrs eq '" + vSociedad.getName() +
-				"' and Codproc eq '" + vProceso.getName() + "'", null, false);
+			//Agregar filtros de proceso
+			for (var i = 0; i < vFilterProceso.length; i++) {
+				var vItemProceso = vFilterProceso[i];
+
+				if (i !== 0) {
+					vProcesoRange = vProcesoRange + " or Codproc eq '" + vItemProceso + "' ";
+				} else {
+					vProcesoRange = vProcesoRange + "Codproc eq '" + vItemProceso + "'";
+				}
+			}
+
+			// //Leer datos del ERP
+			// oRead = this.fnReadEntity(oModelService, "/GraficoStatusTicketSet?$filter=Fecin eq datetime'" + vFechaValue +
+			// 	"' and Fecfi eq datetime'" +
+			// 	vFechaValue2 + "' and Codtorre eq '" + vTorre.getName() + "' and Bukrs eq '" + vSociedad.getName() +
+			// 	"' and Codproc eq '" + vProceso.getName() + "'", null, false);			
+
+			if (vProcesoRange !== "") {
+				//Leer datos del ERP
+				oRead = this.fnReadEntity(oModelService, "/GraficoStatusTicketSet?$filter=Fecin eq datetime'" + vFechaValue +
+					"' and Fecfi eq datetime'" +
+					vFechaValue2 + "' and Codtorre eq '" + vTorre.getName() + "' and Bukrs eq '" + vSociedad.getName() +
+					"' and (" + vProcesoRange + ")", null, false);
+			} else {
+				//Leer datos del ERP
+				oRead = this.fnReadEntity(oModelService, "/GraficoStatusTicketSet?$filter=Fecin eq datetime'" + vFechaValue +
+					"' and Fecfi eq datetime'" +
+					vFechaValue2 + "' and Codtorre eq '" + vTorre.getName() + "' and Bukrs eq '" + vSociedad.getName() + "'", null, false);
+			}
+
 			if (oRead.tipo === "S") {
 				oDataStatus.items = oRead.datos.results;
 			} else {
@@ -1347,7 +1516,9 @@ sap.ui.define([
 
 			oModel = new sap.ui.model.json.JSONModel(oData);
 
-			vTitle = pData.items[0].Socie + "\n       Torre: " + pData.items[0].Desto;
+			if (pData && pData.items.length > 0) {
+				vTitle = pData.items[0].Socie + "\n       Torre: " + pData.items[0].Desto;
+			}
 
 			oVizFrameDonutTotal.setModel(oModel);
 
@@ -1355,6 +1526,14 @@ sap.ui.define([
 			oVizFrameDonutTotal.setVizProperties({
 				title: {
 					text: vTitle
+				},
+
+				plotArea: {
+					dataLabel: {
+						visible: true,
+						// formatString: "#,##%"
+						formatString: "#%"
+					}
 				}
 			});
 		},
@@ -1400,6 +1579,119 @@ sap.ui.define([
 
 			return vTotalList;
 
-		}
+		},
+
+		/**
+		 * Limpiar campos filtros gráfico barras.
+		 * @public
+		 */
+		fnLimpiarStatus: function() {
+			var vFecha = this.getView().byId("__datePickerStatus1"),
+				vFecha2 = this.getView().byId("__datePickerStatus2"),
+				vTorre = this.getView().byId("__inputStatusTorre"),
+				vSociedad = this.getView().byId("__inputStatusSociedad"),
+				// vProceso = this.getView().byId("__inputStatusProceso"),
+				vListaProceso = this.getView().byId("_procesoComboBoxStatus");
+
+			vFecha.setValue(null);
+			vFecha2.setValue(null);
+			vTorre.setValue(null);
+			vSociedad.setValue(null);
+			// vProceso.setValue(null);
+			vListaProceso.setSelectedKeys([]);
+			//Almacena procesos filtrados
+			vFiltroSelect.procesoStatus = [];
+		},
+
+		/**
+		 * Seleccionar tab
+		 * @public
+		 */
+		fnSelectTab: function(oEvent) {
+			var vKey = oEvent.getParameter("key"),
+				oDataProceso = "",
+				vListProceso = [],
+				oLista = "",
+				oModel = "",
+				vTorre = this.getView().byId("__inputBarraTorre"),
+				vTorreStatus = this.getView().byId("__inputStatusTorre");
+
+			switch (vKey) {
+				case "__xmlview0--__filter1":
+					//Obtener lista proceso	
+					vListProceso = this.fnObtenerFiltroProceso();
+
+					//SI el modelo NO existe, se crea.
+					if (!oDataProceso) {
+						oDataProceso = {
+							ProcesoSet: []
+						};
+					}
+
+					if (vTorre.getName() !== "") {
+						oDataProceso.ProcesoSet = vListProceso.filter(results => results.Codtorre === vTorre.getName());
+					} else {
+						oDataProceso.ProcesoSet = vListProceso;
+					}
+
+					oLista = this.getView().byId("_procesoBarra");
+					oModel = new sap.ui.model.json.JSONModel(oDataProceso);
+					oLista.setModel(oModel);
+
+					if (vFiltroSelect.proceso.length > 0) {
+						oLista.setSelectedKeys(vFiltroSelect.proceso);
+					}
+
+					break;
+				case "__xmlview0--__filter2":
+					//Obtener lista proceso	
+					vListProceso = this.fnObtenerFiltroProceso();
+
+					//SI el modelo NO existe, se crea.
+					if (!oDataProceso) {
+						oDataProceso = {
+							ProcesoSet: []
+						};
+					}
+
+					if (vTorreStatus.getName() !== "") {
+						oDataProceso.ProcesoSet = vListProceso.filter(results => results.Codtorre === vTorreStatus.getName());
+					} else {
+						oDataProceso.ProcesoSet = vListProceso;
+					}
+
+					oLista = this.getView().byId("_procesoComboBoxStatus");
+					oModel = new sap.ui.model.json.JSONModel(oDataProceso);
+					oLista.setModel(oModel);
+
+					if (vFiltroSelect.procesoStatus.length > 0) {
+						oLista.setSelectedKeys(vFiltroSelect.procesoStatus);
+					}
+
+					break;
+				default:
+			}
+
+		},
+
+		/**
+		 * Evento al terminar de seleccionar proceso barra
+		 * @public
+		 */
+		fnHhandleSelectionFinishComboBoxBarra: function(oEvent) {
+			//Agregar filtros proceso
+			var vFilterProceso = this.getView().byId("_procesoBarra").getSelectedKeys();
+			vFiltroSelect.proceso = vFilterProceso;
+		},
+
+		/**
+		 * Evento al terminar de seleccionar proceso status
+		 * @public
+		 */
+		fnHhandleSelectionFinishComboBoxStatus: function(oEvent) {
+			//Agregar filtros proceso
+			var vFilterProceso = this.getView().byId("_procesoComboBoxStatus").getSelectedKeys();
+			vFiltroSelect.procesoStatus = vFilterProceso;
+		},
 	});
 });

@@ -1,6 +1,7 @@
 <mvc:View xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:viz="sap.viz.ui5.controls"
 	xmlns:layout="sap.ui.layout" xmlns:viz.data="sap.viz.ui5.data" xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
-	xmlns:table="sap.ui.table" xmlns:chart="sap.suite.ui.commons" controllerName="com.report.controller.View1" displayBlock="true">
+	xmlns:table="sap.ui.table" xmlns:chart="sap.suite.ui.commons" xmlns:core="sap.ui.core"
+	controllerName="com.report.controller.View1" displayBlock="true">
 	<App>
 		<pages>
 			<Page title="{i18n>title}">
@@ -18,6 +19,8 @@
 											<DatePicker id="__datePicker2" valueFormat="yyyy-MM-dd"/>
 											<Label text="Estado" id="__label1"/>
 											<Input width="100%" id="__input2" showValueHelp="true" valueHelpRequest="fnStatus" valueHelpOnly="true"/>
+											<Label text="Sociedad" id="__labelSociedad"/>
+											<Input width="100%" id="__inputSociedad" showValueHelp="true" valueHelpRequest="fnSociedad" valueHelpOnly="true"/>											
 											<CheckBox text="Gestion" id="_checkGestion"/>
 											<layout:HorizontalLayout>
 												<Button text="Consultar" id="__button0" type="Accept" press="fnConsultar"/>
@@ -176,7 +179,12 @@
 											<Label text="Sociedad" id="__labelBarraSociedad"/>
 											<Input width="100%" id="__inputBarraSociedad" showValueHelp="true" valueHelpRequest="fnSociedad" valueHelpOnly="true"/>
 											<Label text="Proceso" id="__labelBarraProceso"/>
-											<Input width="100%" id="__inputBarraProceso" showValueHelp="true" valueHelpRequest="fnProceso" valueHelpOnly="true"/>
+											<!--<Input width="100%" id="__inputBarraProceso" showValueHelp="true" valueHelpRequest="fnProceso" valueHelpOnly="true"/>-->
+											<MultiComboBox id="_procesoBarra" selectionFinish="fnHhandleSelectionFinishComboBoxBarra"
+												items="{ path: '/ProcesoSet', sorter: { path: 'Desdproc' } }">
+												<core:Item key="{Codproc}" text="{Desproc}"/>
+											</MultiComboBox>
+											<CheckBox text="Gestion" id="_checkGestionBarra"/>
 											<layout:HorizontalLayout>
 												<Button text="Consultar" id="__buttonBarra1" type="Accept" press="fnConsultarBarra"/>
 												<Button text="Limpiar" id="__buttonBarra2" type="Emphasized" press="fnLimpiarBarra"/>
@@ -223,10 +231,14 @@
 											<Label text="Sociedad" id="__labelStatusSociedad"/>
 											<Input width="100%" id="__inputStatusSociedad" showValueHelp="true" valueHelpRequest="fnSociedad" valueHelpOnly="true"/>
 											<Label text="Proceso" id="__labelStatusProceso"/>
-											<Input width="100%" id="__inputStatusProceso" showValueHelp="true" valueHelpRequest="fnProceso" valueHelpOnly="true"/>
+											<!--<Input width="100%" id="__inputStatusProceso" showValueHelp="true" valueHelpRequest="fnProceso" valueHelpOnly="true"/>-->
+											<MultiComboBox id="_procesoComboBoxStatus" selectionFinish="fnHhandleSelectionFinishComboBoxStatus"
+												items="{ path: '/ProcesoSet', sorter: { path: 'Desdproc' } }">
+												<core:Item key="{Codproc}" text="{Desproc}"/>
+											</MultiComboBox>											
 											<layout:HorizontalLayout>
 												<Button text="Consultar" id="__buttonStatus1" type="Accept" press="fnConsultarStatus"/>
-												<Button text="Limpiar" id="__buttonStatus2" type="Emphasized" press="fnLimpiarBarra"/>
+												<Button text="Limpiar" id="__buttonStatus2" type="Emphasized" press="fnLimpiarStatus"/>
 											</layout:HorizontalLayout>
 										</layout:VerticalLayout>
 									</sap.ui.layout.form:content>
